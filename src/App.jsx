@@ -3,6 +3,7 @@ import HomePage from './pages/HomePage'
 import DetalhesAgendamento from './pages/DetalhesAgendamento'
 import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
+import Busca from './pages/Busca'
 import Anunciar from './pages/Anunciar'
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
       <Route path="/detalhes" element={<DetalhesAgendamento />} />
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
+      <Route path="/busca" element={<Busca />} />
       <Route path="/anunciar" element={<Anunciar />} />
     </Routes>
   )

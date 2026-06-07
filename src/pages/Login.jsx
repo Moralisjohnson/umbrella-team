@@ -96,7 +96,11 @@ const Login = () => {
                 SENHA
               </label>
               <div className="input-group">
-                <span className="input-group-text bg-white rounded-0 text-muted">
+                <span
+                  className={`input-group-text bg-white rounded-0 ${
+                    senhaInvalida ? "text-danger border-danger" : "text-muted"
+                  }`}
+                >
                   <Lock size={16} />
                 </span>
                 <input

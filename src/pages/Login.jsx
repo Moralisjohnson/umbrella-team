@@ -216,9 +216,9 @@ const Login = () => {
         {/* Rodapé do cartão */}
         <p className="text-center text-secondary small mt-4 mb-0">
           Ainda não tem conta?{" "}
-          <a href="#" className="text-aqua fw-semibold text-decoration-none">
+          <Link to="/cadastro" className="text-aqua fw-semibold text-decoration-none">
             Cadastre-se
-          </a>
+          </Link>
         </p>
       </div>
     </div>

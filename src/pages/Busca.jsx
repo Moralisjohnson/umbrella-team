@@ -2,18 +2,10 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Search, SlidersHorizontal, Star, MapPin } from "lucide-react";
+import { ITENS } from "../data/itens";
 
-// Dados de exemplo (mock) ate haver um backend de busca.
-const ITENS = [
-  { id: 1, nome: "Furadeira Profissional Bosch 750W", preco: 25, nota: 4.8, local: "Batel - Curitiba/PR", categoria: "Ferramentas" },
-  { id: 2, nome: "Barraca de Camping 4 Pessoas", preco: 40, nota: 4.6, local: "Centro - Curitiba/PR", categoria: "Camping" },
-  { id: 3, nome: "Caixa de Som JBL PartyBox", preco: 60, nota: 4.9, local: "Agua Verde - Curitiba/PR", categoria: "Eventos" },
-  { id: 4, nome: "Lavadora de Alta Pressao", preco: 35, nota: 4.5, local: "Portao - Curitiba/PR", categoria: "Limpeza" },
-  { id: 5, nome: "Projetor Full HD 3000 lumens", preco: 55, nota: 4.7, local: "Bigorrilho - Curitiba/PR", categoria: "Eventos" },
-  { id: 6, nome: "Kit Churrasqueira Portatil", preco: 30, nota: 4.4, local: "Cabral - Curitiba/PR", categoria: "Lazer" },
-];
-
-const CATEGORIAS = ["Todas", "Ferramentas", "Camping", "Eventos", "Limpeza", "Lazer"];
+// Categorias derivadas da fonte unica de dados.
+const CATEGORIAS = ["Todas", ...new Set(ITENS.map((i) => i.categoria))];
 
 const Busca = () => {
   const [termo, setTermo] = useState("");
@@ -139,7 +131,7 @@ const Busca = () => {
                 {resultados.map((item) => (
                   <div className="col" key={item.id}>
                     <Link
-                      to="/detalhes"
+                      to={`/detalhes/${item.id}`}
                       className="text-decoration-none text-reset"
                     >
                       <div className="card h-100 border-0 shadow-sm rounded-0 overflow-hidden">

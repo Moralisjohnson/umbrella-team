@@ -1,8 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
+import Login from './pages/Login'
 
 function App() {
   return (
     <Routes>
+      {/* Tela de login */}
+      <Route path="/login" element={<Login />} />
+
       {/* Rota base de boas-vindas. As telas da aplicação são
           adicionadas em branches de feature. */}
       <Route

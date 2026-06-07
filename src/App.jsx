@@ -1,24 +1,16 @@
 import { Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import DetalhesAgendamento from './pages/DetalhesAgendamento'
+import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
 
 function App() {
   return (
     <Routes>
-      {/* Tela de cadastro */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/detalhes" element={<DetalhesAgendamento />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
-      {/* Rota base de boas-vindas. As telas da aplicação são
-          adicionadas em branches de feature. */}
-      <Route
-        path="/"
-        element={
-          <div className="container-fluid py-5 text-center">
-            <h1 className="display-5 fw-bold">Project Umbrella</h1>
-            <p className="lead text-secondary">
-              Servidor React + Vite + Bootstrap configurado e pronto.
-            </p>
-          </div>
-        }
-      />
     </Routes>
   )
 }

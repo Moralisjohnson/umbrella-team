@@ -1,0 +1,14 @@
+/* Reset mínimo — o Bootstrap cuida do resto da estilização.
+   Garantimos apenas que body e #root ocupem 100% da largura/altura. */
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}

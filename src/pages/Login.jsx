@@ -101,7 +101,10 @@ const Login = () => {
           <form onSubmit={handleSubmit} noValidate>
             {/* E-mail */}
             <div className="mb-3">
-              <label className="form-label small fw-bold text-secondary">
+              <label
+                htmlFor="email"
+                className="form-label small fw-bold text-secondary"
+              >
                 E-MAIL
               </label>
               <div className="input-group">
@@ -109,17 +112,21 @@ const Login = () => {
                   <Mail size={16} />
                 </span>
                 <input
+                  id="email"
                   type="email"
+                  autoComplete="email"
                   className={`form-control rounded-0 shadow-none ${
                     emailInvalido ? "is-invalid" : ""
                   }`}
                   placeholder="voce@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  aria-invalid={emailInvalido}
+                  aria-describedby={emailInvalido ? "email-erro" : undefined}
                 />
               </div>
               {emailInvalido && (
-                <div className="text-danger small mt-1">
+                <div className="text-danger small mt-1" id="email-erro">
                   {emailVazio
                     ? "Informe o seu e-mail."
                     : "Formato de e-mail inválido."}
@@ -129,7 +136,10 @@ const Login = () => {
 
             {/* Senha */}
             <div className="mb-2">
-              <label className="form-label small fw-bold text-secondary">
+              <label
+                htmlFor="senha"
+                className="form-label small fw-bold text-secondary"
+              >
                 SENHA
               </label>
               <div className="input-group">
@@ -141,25 +151,30 @@ const Login = () => {
                   <Lock size={16} />
                 </span>
                 <input
+                  id="senha"
                   type={mostrarSenha ? "text" : "password"}
+                  autoComplete="current-password"
                   className={`form-control rounded-0 shadow-none border-end-0 ${
                     senhaInvalida ? "is-invalid" : ""
                   }`}
                   placeholder="••••••••"
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
+                  aria-invalid={senhaInvalida}
+                  aria-describedby={senhaInvalida ? "senha-erro" : undefined}
                 />
                 <button
                   type="button"
                   className="btn btn-light rounded-0 border d-flex align-items-center"
                   onClick={() => setMostrarSenha((v) => !v)}
                   title={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                  aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {mostrarSenha ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {senhaInvalida && (
-                <div className="text-danger small mt-1">
+                <div className="text-danger small mt-1" id="senha-erro">
                   Informe a sua senha.
                 </div>
               )}

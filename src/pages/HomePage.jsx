@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Search, Filter, Star, Globe } from "lucide-react";
+import { ITENS } from "../data/itens";
 
 const Hand2HandApp = () => {
   const navigate = useNavigate();
@@ -50,10 +51,10 @@ const Hand2HandApp = () => {
               Home
             </Link>
             <Link
-              to="/detalhes"
+              to="/busca"
               className="text-secondary text-decoration-none fw-medium"
             >
-              Detalhes
+              Buscar
             </Link>
             <Link
               to="/anunciar"
@@ -145,34 +146,37 @@ const Hand2HandApp = () => {
         <section>
           <h2 className="h4 text-aqua fw-bold mb-4">Destaques para Alugar</h2>
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="col">
-                <Link to="/detalhes" className="text-decoration-none text-reset">
-                <div className="card h-100 border-0 shadow-sm rounded-0 overflow-hidden">
-                  <div
-                    className="card-img-top bg-aqua-light d-flex align-items-center justify-content-center text-aqua-light rounded-0"
-                    style={{ height: "180px" }}
-                  >
-                    <span className="text-aqua opacity-50 small">
-                      Imagem do Produto 
-                    </span>
-                  </div>
-                  <div className="card-body">
-                    <h3 className="card-title h6 fw-bold mb-2 text-dark">
-                      Furadeira Profissional 
-                    </h3> 
-                    <div className="d-flex align-items-center gap-1 small text-warning mb-3">
-                      <Star size={16} fill="currentColor" />
-                      <span className="text-secondary fw-medium text-dark">
-                        4.8 (Reputação)
+            {ITENS.slice(0, 4).map((item) => (
+              <div key={item.id} className="col">
+                <Link
+                  to={`/detalhes/${item.id}`}
+                  className="text-decoration-none text-reset"
+                >
+                  <div className="card h-100 border-0 shadow-sm rounded-0 overflow-hidden">
+                    <div
+                      className="card-img-top bg-aqua-light d-flex align-items-center justify-content-center text-aqua-light rounded-0"
+                      style={{ height: "180px" }}
+                    >
+                      <span className="text-aqua opacity-50 small">
+                        Imagem do Produto
                       </span>
                     </div>
-                    <div className="text-aqua fw-bold fs-5">
-                      R$ 25{" "}
-                      <span className="fs-6 text-muted fw-normal">/ dia</span>
+                    <div className="card-body">
+                      <h3 className="card-title h6 fw-bold mb-2 text-dark">
+                        {item.nome}
+                      </h3>
+                      <div className="d-flex align-items-center gap-1 small text-warning mb-3">
+                        <Star size={16} fill="currentColor" />
+                        <span className="text-secondary fw-medium text-dark">
+                          {item.nota} (Reputacao)
+                        </span>
+                      </div>
+                      <div className="text-aqua fw-bold fs-5">
+                        R$ {item.preco}{" "}
+                        <span className="fs-6 text-muted fw-normal">/ dia</span>
+                      </div>
                     </div>
                   </div>
-                </div>
                 </Link>
               </div>
             ))}

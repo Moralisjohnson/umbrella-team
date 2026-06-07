@@ -3,24 +3,33 @@ import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
+// Formato básico de e-mail: algo@algo.algo (sem espaços).
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [tentouEnviar, setTentouEnviar] = useState(false);
 
-  // Um campo é considerado inválido se o usuário já clicou em "Entrar"
-  // e o campo continua vazio. Ao digitar, o valor deixa de ser vazio e
-  // o estilo vermelho some automaticamente.
-  const emailInvalido = tentouEnviar && email.trim() === "";
+  // Validação só acontece depois que o usuário clica em "Entrar".
+  // Ao digitar, os valores mudam e o estilo vermelho some automaticamente.
+  const emailVazio = tentouEnviar && email.trim() === "";
+  const emailFormatoInvalido =
+    tentouEnviar && email.trim() !== "" && !EMAIL_REGEX.test(email.trim());
+  const emailInvalido = emailVazio || emailFormatoInvalido;
   const senhaInvalida = tentouEnviar && senha.trim() === "";
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setTentouEnviar(true);
 
-    // Não prossegue se algum campo estiver vazio.
-    if (email.trim() === "" || senha.trim() === "") {
+    // Não prossegue com campos vazios ou e-mail em formato inválido.
+    if (
+      email.trim() === "" ||
+      senha.trim() === "" ||
+      !EMAIL_REGEX.test(email.trim())
+    ) {
       return;
     }
 
@@ -85,7 +94,9 @@ const Login = () => {
               </div>
               {emailInvalido && (
                 <div className="text-danger small mt-1">
-                  Informe o seu e-mail.
+                  {emailVazio
+                    ? "Informe o seu e-mail."
+                    : "Formato de e-mail inválido."}
                 </div>
               )}
             </div>

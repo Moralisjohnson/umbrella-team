@@ -7,9 +7,23 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [tentouEnviar, setTentouEnviar] = useState(false);
+
+  // Um campo é considerado inválido se o usuário já clicou em "Entrar"
+  // e o campo continua vazio. Ao digitar, o valor deixa de ser vazio e
+  // o estilo vermelho some automaticamente.
+  const emailInvalido = tentouEnviar && email.trim() === "";
+  const senhaInvalida = tentouEnviar && senha.trim() === "";
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setTentouEnviar(true);
+
+    // Não prossegue se algum campo estiver vazio.
+    if (email.trim() === "" || senha.trim() === "") {
+      return;
+    }
+
     // TODO: integrar com a autenticação real (API) futuramente.
     console.log("Tentativa de login:", { email, senha });
   };
@@ -49,7 +63,7 @@ const Login = () => {
         <div className="card border-0 shadow-sm rounded-0 bg-white p-4">
           <h1 className="h4 fw-bold text-dark mb-4 text-center">Entrar</h1>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             {/* E-mail */}
             <div className="mb-3">
               <label className="form-label small fw-bold text-secondary">
@@ -61,13 +75,19 @@ const Login = () => {
                 </span>
                 <input
                   type="email"
-                  className="form-control rounded-0 shadow-none"
+                  className={`form-control rounded-0 shadow-none ${
+                    emailInvalido ? "is-invalid" : ""
+                  }`}
                   placeholder="voce@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                 />
               </div>
+              {emailInvalido && (
+                <div className="text-danger small mt-1">
+                  Informe o seu e-mail.
+                </div>
+              )}
             </div>
 
             {/* Senha */}
@@ -81,11 +101,12 @@ const Login = () => {
                 </span>
                 <input
                   type={mostrarSenha ? "text" : "password"}
-                  className="form-control rounded-0 shadow-none border-end-0"
+                  className={`form-control rounded-0 shadow-none border-end-0 ${
+                    senhaInvalida ? "is-invalid" : ""
+                  }`}
                   placeholder="••••••••"
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  required
                 />
                 <button
                   type="button"
@@ -96,6 +117,11 @@ const Login = () => {
                   {mostrarSenha ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              {senhaInvalida && (
+                <div className="text-danger small mt-1">
+                  Informe a sua senha.
+                </div>
+              )}
             </div>
 
             {/* Esqueci a senha */}

@@ -1,8 +1,11 @@
 import { Routes, Route } from 'react-router-dom'
+import Cadastro from './pages/Cadastro'
 
 function App() {
   return (
     <Routes>
+      {/* Tela de cadastro */}
+      <Route path="/cadastro" element={<Cadastro />} />
       {/* Rota base de boas-vindas. As telas da aplicação são
           adicionadas em branches de feature. */}
       <Route

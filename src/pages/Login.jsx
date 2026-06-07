@@ -12,6 +12,7 @@ const Login = () => {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [tentouEnviar, setTentouEnviar] = useState(false);
   const [carregando, setCarregando] = useState(false);
+  const [erroLogin, setErroLogin] = useState("");
 
   // Validação só acontece depois que o usuário clica em "Entrar".
   // Ao digitar, os valores mudam e o estilo vermelho some automaticamente.
@@ -24,6 +25,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setTentouEnviar(true);
+    setErroLogin("");
 
     // Não prossegue com campos vazios ou e-mail em formato inválido.
     if (
@@ -38,7 +40,17 @@ const Login = () => {
     setCarregando(true);
     setTimeout(() => {
       setCarregando(false);
-      console.log("Tentativa de login:", { email, senha });
+
+      // MOCK: enquanto não há backend, só estas credenciais "passam".
+      const credenciaisOk =
+        email.trim() === "user@hand2hand.com" && senha === "123456";
+
+      if (credenciaisOk) {
+        console.log("Login bem-sucedido:", { email });
+        // TODO: guardar token e redirecionar o usuário.
+      } else {
+        setErroLogin("E-mail ou senha incorretos.");
+      }
     }, 1200);
   };
 
@@ -76,6 +88,15 @@ const Login = () => {
         {/* Cartão do formulário */}
         <div className="card border-0 shadow-sm rounded-0 bg-white p-4">
           <h1 className="h4 fw-bold text-dark mb-4 text-center">Entrar</h1>
+
+          {erroLogin && (
+            <div
+              className="alert alert-danger rounded-0 py-2 small"
+              role="alert"
+            >
+              {erroLogin}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} noValidate>
             {/* E-mail */}

@@ -11,6 +11,7 @@ const Login = () => {
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [tentouEnviar, setTentouEnviar] = useState(false);
+  const [carregando, setCarregando] = useState(false);
 
   // Validação só acontece depois que o usuário clica em "Entrar".
   // Ao digitar, os valores mudam e o estilo vermelho some automaticamente.
@@ -33,8 +34,12 @@ const Login = () => {
       return;
     }
 
-    // TODO: integrar com a autenticação real (API) futuramente.
-    console.log("Tentativa de login:", { email, senha });
+    // Simulação de chamada à API (substituir pela autenticação real depois).
+    setCarregando(true);
+    setTimeout(() => {
+      setCarregando(false);
+      console.log("Tentativa de login:", { email, senha });
+    }, 1200);
   };
 
   return (
@@ -152,9 +157,22 @@ const Login = () => {
             {/* Botão principal */}
             <button
               type="submit"
+              disabled={carregando}
               className="btn btn-aqua btn-lg w-100 rounded-0 fw-semibold d-flex align-items-center justify-content-center gap-2"
             >
-              <LogIn size={18} /> Entrar
+              {carregando ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    aria-hidden="true"
+                  ></span>
+                  Entrando...
+                </>
+              ) : (
+                <>
+                  <LogIn size={18} /> Entrar
+                </>
+              )}
             </button>
           </form>
         </div>

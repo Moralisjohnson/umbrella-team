@@ -1,15 +1,14 @@
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import DetalhesAgendamento from './pages/DetalhesAgendamento'
+import Login from './pages/Login'
 
 function App() {
   return (
     <Routes>
-      {/* Cada <Route> liga uma URL a uma tela.
-          path="/"          -> http://localhost:5173/
-          path="/detalhes"  -> http://localhost:5173/detalhes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/detalhes" element={<DetalhesAgendamento />} />
+      <Route path="/login" element={<Login />} />
     </Routes>
   )
 }

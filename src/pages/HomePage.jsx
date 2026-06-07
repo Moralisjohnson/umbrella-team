@@ -1,9 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Search, Filter, Star, Globe } from "lucide-react";
 
 const Hand2HandApp = () => {
+  const navigate = useNavigate();
+
+  const handleBusca = (e) => {
+    e.preventDefault();
+    navigate("/busca");
+  };
+
   return (
     <div
       className="min-vh-100 font-sans text-dark"
@@ -38,11 +45,8 @@ const Hand2HandApp = () => {
         <div className="container-fluid py-3 d-flex align-items-center justify-content-between">
           <div className="fs-4 fw-bold text-aqua">Hand 2 Hand</div>
 
-          <nav className="d-none d-md-flex gap-4">
-            <Link
-              to="/"
-              className="text-aqua text-decoration-none fw-semibold"
-            >
+          <nav className="d-none d-md-flex gap-4 align-items-center">
+            <Link to="/" className="text-aqua text-decoration-none fw-semibold">
               Home
             </Link>
             <Link
@@ -51,9 +55,25 @@ const Hand2HandApp = () => {
             >
               Detalhes
             </Link>
+            <Link
+              to="/anunciar"
+              className="text-secondary text-decoration-none fw-medium"
+            >
+              Anunciar
+            </Link>
+            <Link
+              to="/login"
+              className="text-secondary text-decoration-none fw-medium"
+            >
+              Entrar
+            </Link>
           </nav>
 
-          <div className="d-flex align-items-center gap-2">
+          <form
+            className="d-flex align-items-center gap-2"
+            onSubmit={handleBusca}
+            role="search"
+          >
             <div className="input-group">
               {/* Barra de pesquisa */}
               <span className="input-group-text bg-white border-end-0 rounded-0 text-muted">
@@ -65,14 +85,16 @@ const Hand2HandApp = () => {
                 className="form-control border-start-0 rounded-0 shadow-none"
               />
             </div>
-            {/* Botão de filtro quadrado */}
+            {/* Botão leva para a tela de busca */}
             <button
+              type="submit"
               className="btn btn-light rounded-0 p-2 d-flex align-items-center justify-content-center"
-              title="Filtro"
+              title="Buscar"
+              aria-label="Buscar"
             >
               <Filter size={18} className="text-secondary" />
             </button>
-          </div>
+          </form>
         </div>
       </header>
 
@@ -92,12 +114,18 @@ const Hand2HandApp = () => {
               </p>
               <div className="d-flex justify-content-center justify-content-lg-start gap-3">
                 {/* Botões principais */}
-                <button className="btn btn-aqua btn-lg rounded-0 px-5 shadow-sm fw-semibold">
+                <Link
+                  to="/busca"
+                  className="btn btn-aqua btn-lg rounded-0 px-5 shadow-sm fw-semibold"
+                >
                   Alugar
-                </button>
-                <button className="btn btn-outline-aqua btn-lg rounded-0 px-5 shadow-sm fw-semibold">
+                </Link>
+                <Link
+                  to="/anunciar"
+                  className="btn btn-outline-aqua btn-lg rounded-0 px-5 shadow-sm fw-semibold"
+                >
                   Anunciar
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -119,6 +147,7 @@ const Hand2HandApp = () => {
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
             {[1, 2, 3, 4].map((item) => (
               <div key={item} className="col">
+                <Link to="/detalhes" className="text-decoration-none text-reset">
                 <div className="card h-100 border-0 shadow-sm rounded-0 overflow-hidden">
                   <div
                     className="card-img-top bg-aqua-light d-flex align-items-center justify-content-center text-aqua-light rounded-0"
@@ -144,6 +173,7 @@ const Hand2HandApp = () => {
                     </div>
                   </div>
                 </div>
+                </Link>
               </div>
             ))}
           </div>

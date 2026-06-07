@@ -182,12 +182,12 @@ const Login = () => {
 
             {/* Esqueci a senha */}
             <div className="text-end mb-4">
-              <a
-                href="#"
+              <Link
+                to="/esqueci-senha"
                 className="small text-aqua text-decoration-none fw-medium"
               >
                 Esqueci minha senha
-              </a>
+              </Link>
             </div>
 
             {/* Botão principal */}

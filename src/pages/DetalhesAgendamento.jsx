@@ -286,7 +286,10 @@ const ItemDetailsApp = () => {
                 <Key size={18} /> Reservar e Gerar Chave
               </button>
 
-              <button className="btn btn-outline-aqua w-100 rounded-0 fw-semibold d-flex align-items-center justify-content-center gap-2">
+              <button
+                className="btn btn-outline-aqua w-100 rounded-0 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                onClick={() => navigate(`/chat/${item.id}`)}
+              >
                 <MessageCircle size={18} /> Falar com Locador {item.dono}
               </button>
 

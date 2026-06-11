@@ -1,4 +1,4 @@
-// "Banco de dados" em memoria (mock). Substituir por um banco real depois (// TODO).
+// Dados de exemplo (seed) usados para popular o PostgreSQL via src/db/seed.js.
 // Espelha os itens do front-end (frontend/src/data/itens.js).
 
 export const itens = [
@@ -102,8 +102,3 @@ export const itens = [
     ],
   },
 ];
-
-// Proximo id incremental para novos itens criados via POST.
-export function proximoIdItem() {
-  return itens.reduce((max, i) => Math.max(max, Number(i.id)), 0) + 1;
-}

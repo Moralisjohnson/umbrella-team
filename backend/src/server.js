@@ -1,3 +1,4 @@
+import "dotenv/config";
 import app from "./app.js";
 
 // Porta vem do ambiente (.env) ou cai no padrao 3001.

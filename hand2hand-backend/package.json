@@ -1,0 +1,16 @@
+{
+  "name": "hand2hand-backend",
+  "version": "0.1.0",
+  "description": "API REST do Hand 2 Hand - marketplace de aluguel ponto a ponto",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

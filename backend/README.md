@@ -48,27 +48,33 @@ curl http://localhost:3001/api/itens   # lista de itens (do banco)
 | POST | `/api/itens` | Cria um item (anuncio) |
 | GET | `/api/itens/:id/avaliacoes` | Lista as avaliacoes do item |
 | POST | `/api/itens/:id/avaliacoes` | Cria avaliacao e recalcula a nota do item |
+| POST | `/api/auth/register` | Cria conta (retorna token JWT) |
+| POST | `/api/auth/login` | Autentica (retorna token JWT) |
+| POST | `/api/auth/forgot-password` | Solicita recuperacao de senha |
 
 ## Estrutura
 
 ```
 backend/
 ├── package.json
-├── .env.example          # PORT e DATABASE_URL
+├── .env.example          # PORT, DATABASE_URL, JWT_SECRET
 ├── src/
 │   ├── server.js         # ponto de entrada (carrega .env, sobe o servidor)
 │   ├── app.js            # Express: middlewares + monta /api
 │   ├── db/
 │   │   ├── pool.js       # pool de conexoes pg + helper query()
-│   │   ├── schema.sql    # CREATE TABLE (itens, avaliacoes)
+│   │   ├── schema.sql    # CREATE TABLE (itens, avaliacoes, usuarios)
 │   │   └── seed.js       # cria schema e popula (npm run db:setup)
 │   ├── data/
 │   │   └── store.js      # dados de exemplo usados pelo seed
 │   ├── routes/
 │   │   ├── index.js      # agregador de rotas
-│   │   └── itens.routes.js
+│   │   ├── itens.routes.js
+│   │   └── auth.routes.js
 │   ├── controllers/
-│   │   └── itens.controller.js
+│   │   ├── itens.controller.js
+│   │   ├── avaliacoes.controller.js
+│   │   └── auth.controller.js
 │   └── middleware/
 │       └── errorHandler.js
 ```
@@ -79,3 +85,4 @@ backend/
 |---|---|---|
 | `PORT` | `3001` | Porta da API |
 | `DATABASE_URL` | - | Conexao do PostgreSQL: `postgresql://user:senha@host:5432/banco` |
+| `JWT_SECRET` | - | Segredo para assinar os tokens JWT |

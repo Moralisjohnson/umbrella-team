@@ -42,7 +42,16 @@ export async function obterItem(req, res, next) {
     if (!rows.length) {
       return res.status(404).json({ erro: "Item nao encontrado" });
     }
-    res.json(rows[0]);
+    const item = rows[0];
+
+    // Embute as avaliacoes do item (formato esperado pelo front: avaliacoesLista).
+    const av = await query(
+      "SELECT autor, nota, comentario FROM avaliacoes WHERE item_id = $1 ORDER BY criado_em DESC",
+      [item.id]
+    );
+    item.avaliacoesLista = av.rows;
+
+    res.json(item);
   } catch (err) {
     next(err);
   }

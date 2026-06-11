@@ -44,8 +44,10 @@ curl http://localhost:3001/api/itens   # lista de itens (do banco)
 |---|---|---|
 | GET | `/` | Healthcheck |
 | GET | `/api/itens` | Lista itens (filtros: `?busca=`, `?categoria=`, `?ordenar=menor-preco\|maior-preco\|melhor-nota`) |
-| GET | `/api/itens/:id` | Detalhe de um item |
+| GET | `/api/itens/:id` | Detalhe de um item (inclui `avaliacoesLista`) |
 | POST | `/api/itens` | Cria um item (anuncio) |
+| GET | `/api/itens/:id/avaliacoes` | Lista as avaliacoes do item |
+| POST | `/api/itens/:id/avaliacoes` | Cria avaliacao e recalcula a nota do item |
 
 ## Estrutura
 

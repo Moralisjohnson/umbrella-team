@@ -279,7 +279,10 @@ const ItemDetailsApp = () => {
                 </div>
               )}
 
-              <button className="btn btn-aqua btn-lg w-100 rounded-0 mb-3 fw-semibold d-flex align-items-center justify-content-center gap-2">
+              <button
+                className="btn btn-aqua btn-lg w-100 rounded-0 mb-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                onClick={() => navigate(`/reserva/${item.id}`)}
+              >
                 <Key size={18} /> Reservar e Gerar Chave
               </button>
 

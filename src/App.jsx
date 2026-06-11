@@ -6,6 +6,7 @@ import Cadastro from './pages/Cadastro'
 import EsqueciSenha from './pages/EsqueciSenha'
 import Busca from './pages/Busca'
 import Anunciar from './pages/Anunciar'
+import Reserva from './pages/Reserva'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Route path="/esqueci-senha" element={<EsqueciSenha />} />
       <Route path="/busca" element={<Busca />} />
       <Route path="/anunciar" element={<Anunciar />} />
+      <Route path="/reserva/:id" element={<Reserva />} />
     </Routes>
   )
 }

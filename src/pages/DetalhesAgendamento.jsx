@@ -15,6 +15,7 @@ import {
   Shield,
 } from "lucide-react";
 import { getItemById } from "../data/itens";
+import Avaliacoes from "../components/Avaliacoes";
 
 const ItemDetailsApp = () => {
   const { id } = useParams();
@@ -214,6 +215,10 @@ const ItemDetailsApp = () => {
                 </div>
               </div>
             </div>
+
+            <hr className="text-muted my-4" />
+
+            <Avaliacoes avaliacoes={item.avaliacoesLista} />
           </div>
 
           {/* COLUNA DIREITA: WIDGET DE AGENDAMENTO (STICKY) */}

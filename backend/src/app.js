@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import routes from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -13,8 +14,8 @@ app.get("/", (req, res) => {
   res.json({ nome: "Hand 2 Hand API", status: "ok", versao: "0.1.0" });
 });
 
-// As rotas de dominio (/api/itens, /api/auth, ...) serao montadas aqui
-// nas proximas partes do backend.
+// Rotas de dominio da API.
+app.use("/api", routes);
 
 // Tratador de erros (sempre por ultimo).
 app.use(errorHandler);

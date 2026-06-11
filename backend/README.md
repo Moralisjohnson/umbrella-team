@@ -51,6 +51,10 @@ curl http://localhost:3001/api/itens   # lista de itens (do banco)
 | POST | `/api/auth/register` | Cria conta (retorna token JWT) |
 | POST | `/api/auth/login` | Autentica (retorna token JWT) |
 | POST | `/api/auth/forgot-password` | Solicita recuperacao de senha |
+| POST | `/api/reservas` | Cria reserva e gera a chave do locker (requer token JWT) |
+| GET | `/api/reservas` | Lista as reservas do usuario logado (requer token JWT) |
+
+> Rotas protegidas exigem o header `Authorization: Bearer <token>` (token obtido no login/register).
 
 ## Estrutura
 
@@ -63,20 +67,23 @@ backend/
 │   ├── app.js            # Express: middlewares + monta /api
 │   ├── db/
 │   │   ├── pool.js       # pool de conexoes pg + helper query()
-│   │   ├── schema.sql    # CREATE TABLE (itens, avaliacoes, usuarios)
+│   │   ├── schema.sql    # CREATE TABLE (itens, avaliacoes, usuarios, reservas)
 │   │   └── seed.js       # cria schema e popula (npm run db:setup)
 │   ├── data/
 │   │   └── store.js      # dados de exemplo usados pelo seed
 │   ├── routes/
 │   │   ├── index.js      # agregador de rotas
 │   │   ├── itens.routes.js
-│   │   └── auth.routes.js
+│   │   ├── auth.routes.js
+│   │   └── reservas.routes.js
 │   ├── controllers/
 │   │   ├── itens.controller.js
 │   │   ├── avaliacoes.controller.js
-│   │   └── auth.controller.js
+│   │   ├── auth.controller.js
+│   │   └── reservas.controller.js
 │   └── middleware/
-│       └── errorHandler.js
+│       ├── errorHandler.js
+│       └── auth.js       # exige token JWT (rotas protegidas)
 ```
 
 ## Variaveis de ambiente

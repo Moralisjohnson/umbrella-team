@@ -8,6 +8,7 @@ import Busca from './pages/Busca'
 import Anunciar from './pages/Anunciar'
 import Reserva from './pages/Reserva'
 import Chat from './pages/Chat'
+import MinhaConta from './pages/MinhaConta'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Route path="/anunciar" element={<Anunciar />} />
       <Route path="/reserva/:id" element={<Reserva />} />
       <Route path="/chat/:id" element={<Chat />} />
+      <Route path="/minha-conta" element={<MinhaConta />} />
     </Routes>
   )
 }

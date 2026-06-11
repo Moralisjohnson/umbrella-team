@@ -63,6 +63,12 @@ const Hand2HandApp = () => {
               Anunciar
             </Link>
             <Link
+              to="/minha-conta"
+              className="text-secondary text-decoration-none fw-medium"
+            >
+              Minha conta
+            </Link>
+            <Link
               to="/login"
               className="text-secondary text-decoration-none fw-medium"
             >

@@ -3,14 +3,15 @@ import itensRoutes from "./itens.routes.js";
 import authRoutes from "./auth.routes.js";
 import reservasRoutes from "./reservas.routes.js";
 import chatRoutes from "./chat.routes.js";
+import contaRoutes from "./conta.routes.js";
 
-// Agregador das rotas da API. Novos recursos (conta)
-// sao montados aqui na proxima parte.
+// Agregador das rotas da API.
 const router = Router();
 
 router.use("/itens", itensRoutes);
 router.use("/auth", authRoutes);
 router.use("/reservas", reservasRoutes);
 router.use("/chat", chatRoutes);
+router.use("/conta", contaRoutes);
 
 export default router;

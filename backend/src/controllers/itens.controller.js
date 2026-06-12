@@ -6,7 +6,8 @@ export async function listarItens(req, res, next) {
   try {
     const { busca = "", categoria = "Todas", ordenar = "relevancia" } = req.query;
 
-    const condicoes = [];
+    // So lista anuncios ativos (pausados ficam fora das listagens publicas).
+    const condicoes = ["ativo = true"];
     const params = [];
 
     if (String(busca).trim()) {
@@ -96,6 +97,34 @@ export async function criarItem(req, res, next) {
     );
 
     res.status(201).json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// PATCH /api/itens/:id  (protegido)  { ativo }
+// Pausa/reativa um anuncio. So o dono pode alterar.
+export async function atualizarItem(req, res, next) {
+  try {
+    const dono = await query("SELECT usuario_id FROM itens WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (!dono.rows.length) {
+      return res.status(404).json({ erro: "Item nao encontrado" });
+    }
+    if (dono.rows[0].usuario_id !== req.usuario.id) {
+      return res.status(403).json({ erro: "Voce nao e o dono deste anuncio" });
+    }
+
+    if (typeof req.body.ativo !== "boolean") {
+      return res.status(400).json({ erro: "Campo 'ativo' (boolean) e obrigatorio" });
+    }
+
+    const { rows } = await query(
+      "UPDATE itens SET ativo = $1 WHERE id = $2 RETURNING *",
+      [req.body.ativo, req.params.id]
+    );
+    res.json(rows[0]);
   } catch (err) {
     next(err);
   }

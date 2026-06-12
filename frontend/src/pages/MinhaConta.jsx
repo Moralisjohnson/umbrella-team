@@ -58,6 +58,22 @@ const MinhaConta = () => {
     }
   };
 
+  // Pausa ou reativa um anuncio (pausado some das listagens publicas).
+  const togglePausa = async (item) => {
+    try {
+      const atualizado = await api(`/itens/${item.id}`, {
+        method: "PATCH",
+        body: { ativo: !item.ativo },
+        auth: true,
+      });
+      setAnuncios((lista) =>
+        lista.map((a) => (a.id === atualizado.id ? atualizado : a))
+      );
+    } catch (err) {
+      console.error("Falha ao pausar/reativar:", err);
+    }
+  };
+
   useEffect(() => {
     // Exige login: sem token, vai para /login.
     if (!estaLogado()) {
@@ -271,8 +287,12 @@ const MinhaConta = () => {
                           <Package size={18} className="text-aqua-light" />
                           {item.nome}
                         </h3>
-                        <span className="badge bg-aqua rounded-0 ms-2">
-                          Ativo
+                        <span
+                          className={`badge rounded-0 ms-2 ${
+                            item.ativo ? "bg-aqua" : "bg-secondary"
+                          }`}
+                        >
+                          {item.ativo ? "Ativo" : "Pausado"}
                         </span>
                       </div>
                       <p className="small text-muted mb-2">
@@ -282,20 +302,13 @@ const MinhaConta = () => {
                         R$ {item.preco}{" "}
                         <span className="fs-6 text-muted fw-normal">/ dia</span>
                       </div>
-                      <div className="d-flex gap-2">
-                        <button
-                          type="button"
-                          className="btn btn-outline-aqua btn-sm rounded-0 fw-semibold d-flex align-items-center gap-1"
-                        >
-                          <Edit size={14} /> Editar
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-light btn-sm rounded-0 fw-semibold d-flex align-items-center gap-1 text-secondary"
-                        >
-                          <PauseCircle size={14} /> Pausar
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm rounded-0 fw-semibold d-flex align-items-center gap-1 text-secondary"
+                        onClick={() => togglePausa(item)}
+                      >
+                        <PauseCircle size={14} /> {item.ativo ? "Pausar" : "Reativar"}
+                      </button>
                     </div>
                   </div>
                 </div>

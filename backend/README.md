@@ -55,6 +55,9 @@ curl http://localhost:3001/api/itens   # lista de itens (do banco)
 | GET | `/api/reservas` | Lista as reservas do usuario logado (requer token JWT) |
 | GET | `/api/chat/:itemId` | Lista mensagens da conversa do item (requer token JWT) |
 | POST | `/api/chat/:itemId` | Envia mensagem e gera resposta mock do locador (requer token JWT) |
+| GET | `/api/conta/perfil` | Dados do usuario logado (requer token JWT) |
+| GET | `/api/conta/alugueis` | Reservas do usuario logado (requer token JWT) |
+| GET | `/api/conta/anuncios` | Itens anunciados pelo usuario logado (requer token JWT) |
 
 > Rotas protegidas exigem o header `Authorization: Bearer <token>` (token obtido no login/register).
 

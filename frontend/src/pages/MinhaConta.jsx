@@ -10,7 +10,7 @@ import {
   Edit,
   PauseCircle,
 } from "lucide-react";
-import { api, estaLogado } from "../api/client";
+import { api, estaLogado, getToken, setSessao } from "../api/client";
 
 const MinhaConta = () => {
   const navigate = useNavigate();
@@ -21,6 +21,41 @@ const MinhaConta = () => {
   const [alugueis, setAlugueis] = useState([]);
   const [anuncios, setAnuncios] = useState([]);
   const [carregando, setCarregando] = useState(true);
+
+  // Edicao do perfil.
+  const [editando, setEditando] = useState(false);
+  const [formNome, setFormNome] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const [erroPerfil, setErroPerfil] = useState("");
+
+  const iniciarEdicao = () => {
+    setFormNome(perfil?.nome || "");
+    setFormEmail(perfil?.email || "");
+    setErroPerfil("");
+    setEditando(true);
+  };
+
+  const salvarPerfil = async (e) => {
+    e.preventDefault();
+    setErroPerfil("");
+    setSalvando(true);
+    try {
+      const atualizado = await api("/conta/perfil", {
+        method: "PUT",
+        body: { nome: formNome, email: formEmail },
+        auth: true,
+      });
+      setPerfil(atualizado);
+      // Atualiza o usuario guardado na sessao (mantem o mesmo token).
+      setSessao(getToken(), atualizado);
+      setEditando(false);
+    } catch (err) {
+      setErroPerfil(err.message || "Nao foi possivel salvar.");
+    } finally {
+      setSalvando(false);
+    }
+  };
 
   useEffect(() => {
     // Exige login: sem token, vai para /login.
@@ -275,26 +310,80 @@ const MinhaConta = () => {
             <h2 className="h5 text-aqua fw-bold mb-3">Perfil</h2>
             <div className="card border-0 shadow-sm rounded-0">
               <div className="card-body">
-                <div className="mb-3 d-flex align-items-center gap-2">
-                  <User size={18} className="text-aqua-light" />
-                  <div>
-                    <div className="small text-muted">Nome</div>
-                    <div className="fw-semibold text-dark">{nome}</div>
+                {erroPerfil && (
+                  <div className="alert alert-danger rounded-0 py-2 small" role="alert">
+                    {erroPerfil}
                   </div>
-                </div>
-                <div className="mb-4 d-flex align-items-center gap-2">
-                  <Mail size={18} className="text-aqua-light" />
-                  <div>
-                    <div className="small text-muted">E-mail</div>
-                    <div className="fw-semibold text-dark">{email}</div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-aqua rounded-0 fw-semibold d-flex align-items-center gap-2"
-                >
-                  <Edit size={16} /> Editar perfil
-                </button>
+                )}
+
+                {editando ? (
+                  <form onSubmit={salvarPerfil}>
+                    <div className="mb-3">
+                      <label htmlFor="perfil-nome" className="form-label small fw-bold text-secondary">
+                        NOME
+                      </label>
+                      <input
+                        id="perfil-nome"
+                        type="text"
+                        className="form-control rounded-0 shadow-none"
+                        value={formNome}
+                        onChange={(e) => setFormNome(e.target.value)}
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label htmlFor="perfil-email" className="form-label small fw-bold text-secondary">
+                        E-MAIL
+                      </label>
+                      <input
+                        id="perfil-email"
+                        type="email"
+                        className="form-control rounded-0 shadow-none"
+                        value={formEmail}
+                        onChange={(e) => setFormEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={salvando}
+                        className="btn btn-aqua rounded-0 fw-semibold d-flex align-items-center gap-2"
+                      >
+                        {salvando ? "Salvando..." : "Salvar"}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary rounded-0 fw-semibold"
+                        onClick={() => setEditando(false)}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="mb-3 d-flex align-items-center gap-2">
+                      <User size={18} className="text-aqua-light" />
+                      <div>
+                        <div className="small text-muted">Nome</div>
+                        <div className="fw-semibold text-dark">{nome}</div>
+                      </div>
+                    </div>
+                    <div className="mb-4 d-flex align-items-center gap-2">
+                      <Mail size={18} className="text-aqua-light" />
+                      <div>
+                        <div className="small text-muted">E-mail</div>
+                        <div className="fw-semibold text-dark">{email}</div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-aqua rounded-0 fw-semibold d-flex align-items-center gap-2"
+                      onClick={iniciarEdicao}
+                    >
+                      <Edit size={16} /> Editar perfil
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </section>

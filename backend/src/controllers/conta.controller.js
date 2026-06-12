@@ -1,5 +1,7 @@
 import { query } from "../db/pool.js";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 // GET /api/conta/perfil  (protegido)
 // Dados do perfil do usuario logado.
 export async function perfil(req, res, next) {
@@ -13,6 +15,40 @@ export async function perfil(req, res, next) {
       return res.status(404).json({ erro: "Usuario nao encontrado" });
     }
     res.json(usuario);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// PUT /api/conta/perfil  (protegido)
+// Atualiza nome e e-mail do usuario logado.
+export async function atualizarPerfil(req, res, next) {
+  try {
+    const { nome, email } = req.body;
+    if (!nome || !nome.trim()) {
+      return res.status(400).json({ erro: "Informe o nome" });
+    }
+    if (!email || !EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ erro: "E-mail invalido" });
+    }
+    const emailNorm = email.trim().toLowerCase();
+
+    // E-mail deve ser unico (exceto o do proprio usuario).
+    const existe = await query(
+      "SELECT id FROM usuarios WHERE email = $1 AND id <> $2",
+      [emailNorm, req.usuario.id]
+    );
+    if (existe.rows.length) {
+      return res.status(409).json({ erro: "E-mail ja cadastrado" });
+    }
+
+    const { rows } = await query(
+      `UPDATE usuarios SET nome = $1, email = $2
+       WHERE id = $3
+       RETURNING id, nome, email, criado_em`,
+      [nome.trim(), emailNorm, req.usuario.id]
+    );
+    res.json(rows[0]);
   } catch (err) {
     next(err);
   }

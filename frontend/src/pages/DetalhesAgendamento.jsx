@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -14,16 +14,27 @@ import {
   ArrowLeft,
   Shield,
 } from "lucide-react";
-import { getItemById } from "../data/itens";
+import { api } from "../api/client";
 import Avaliacoes from "../components/Avaliacoes";
 
 const ItemDetailsApp = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const item = getItemById(id);
+
+  // Item buscado na API real (preco/nota chegam como string).
+  const [item, setItem] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [naoEncontrado, setNaoEncontrado] = useState(false);
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  useEffect(() => {
+    api(`/itens/${id}`)
+      .then((i) => setItem(i))
+      .catch(() => setNaoEncontrado(true))
+      .finally(() => setCarregando(false));
+  }, [id]);
 
   // Calculo simples de dias para demonstracao na interface.
   const calculateTotal = () => {
@@ -32,11 +43,23 @@ const ItemDetailsApp = () => {
     const end = new Date(endDate);
     const diffTime = Math.abs(end - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    return diffDays > 0 ? diffDays * item.preco : 0;
+    return diffDays > 0 ? diffDays * Number(item.preco) : 0;
   };
 
-  // Item inexistente (id invalido na URL).
-  if (!item) {
+  // Estado de carregamento simples enquanto a API responde.
+  if (carregando) {
+    return (
+      <div
+        className="min-vh-100 d-flex flex-column align-items-center justify-content-center text-center px-3"
+        style={{ backgroundColor: "#f7fafc" }}
+      >
+        <p className="text-muted mb-0">Carregando...</p>
+      </div>
+    );
+  }
+
+  // Item inexistente (id invalido na URL) ou erro na busca.
+  if (naoEncontrado || !item) {
     return (
       <div
         className="min-vh-100 d-flex flex-column align-items-center justify-content-center text-center px-3"
@@ -218,7 +241,7 @@ const ItemDetailsApp = () => {
 
             <hr className="text-muted my-4" />
 
-            <Avaliacoes avaliacoes={item.avaliacoesLista} />
+            <Avaliacoes itemId={item.id} avaliacoes={item.avaliacoesLista} />
           </div>
 
           {/* COLUNA DIREITA: WIDGET DE AGENDAMENTO (STICKY) */}
@@ -268,7 +291,7 @@ const ItemDetailsApp = () => {
                 <div className="bg-light p-3 mb-4 rounded-0 small">
                   <div className="d-flex justify-content-between mb-2">
                     <span>
-                      R$ {item.preco} x {calculateTotal() / item.preco} dias
+                      R$ {item.preco} x {calculateTotal() / Number(item.preco)} dias
                     </span>
                     <span>R$ {calculateTotal()}</span>
                   </div>

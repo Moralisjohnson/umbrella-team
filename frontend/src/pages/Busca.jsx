@@ -1,27 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Search, SlidersHorizontal, Star, MapPin } from "lucide-react";
-import { ITENS } from "../data/itens";
-
-// Categorias derivadas da fonte unica de dados.
-const CATEGORIAS = ["Todas", ...new Set(ITENS.map((i) => i.categoria))];
+import { api } from "../api/client";
 
 const Busca = () => {
+  const [itens, setItens] = useState([]);
   const [termo, setTermo] = useState("");
   const [categoria, setCategoria] = useState("Todas");
   const [ordenar, setOrdenar] = useState("relevancia");
 
-  // Filtra por termo e categoria, depois ordena (tudo no front, sobre o mock).
-  const resultados = ITENS
+  // Busca todos os itens uma vez na montagem.
+  useEffect(() => {
+    api("/itens").then(setItens).catch(() => setItens([]));
+  }, []);
+
+  // Categorias derivadas dos itens carregados, de forma reativa.
+  const CATEGORIAS = useMemo(
+    () => ["Todas", ...new Set(itens.map((i) => i.categoria))],
+    [itens]
+  );
+
+  // Filtra por termo e categoria, depois ordena (tudo no front).
+  // A API devolve preco/nota como string, entao convertemos com Number na ordenacao.
+  const resultados = itens
     .filter((i) =>
       i.nome.toLowerCase().includes(termo.trim().toLowerCase())
     )
     .filter((i) => categoria === "Todas" || i.categoria === categoria)
     .sort((a, b) => {
-      if (ordenar === "menor-preco") return a.preco - b.preco;
-      if (ordenar === "maior-preco") return b.preco - a.preco;
-      if (ordenar === "melhor-nota") return b.nota - a.nota;
+      if (ordenar === "menor-preco") return Number(a.preco) - Number(b.preco);
+      if (ordenar === "maior-preco") return Number(b.preco) - Number(a.preco);
+      if (ordenar === "melhor-nota") return Number(b.nota) - Number(a.nota);
       return 0;
     });
 

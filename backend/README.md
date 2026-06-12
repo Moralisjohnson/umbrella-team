@@ -38,6 +38,14 @@ curl http://localhost:3001/            # healthcheck
 curl http://localhost:3001/api/itens   # lista de itens (do banco)
 ```
 
+## Conta de teste
+
+O `npm run db:setup` cria uma conta fixa para testes (apenas para desenvolvimento):
+
+| E-mail | Senha |
+|---|---|
+| `admin@hand2hand.com` | `admin123` |
+
 ## Endpoints
 
 | Metodo | Rota | Descricao |

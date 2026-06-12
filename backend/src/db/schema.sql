@@ -49,3 +49,14 @@ CREATE TABLE IF NOT EXISTS reservas (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reservas_usuario_id ON reservas (usuario_id);
+
+CREATE TABLE IF NOT EXISTS mensagens (
+  id          SERIAL PRIMARY KEY,
+  item_id     INTEGER NOT NULL REFERENCES itens(id) ON DELETE CASCADE,
+  usuario_id  INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  de          TEXT NOT NULL CHECK (de IN ('usuario', 'locador')),
+  texto       TEXT NOT NULL,
+  criado_em   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_mensagens_item_usuario ON mensagens (item_id, usuario_id);

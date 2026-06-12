@@ -53,6 +53,8 @@ curl http://localhost:3001/api/itens   # lista de itens (do banco)
 | POST | `/api/auth/forgot-password` | Solicita recuperacao de senha |
 | POST | `/api/reservas` | Cria reserva e gera a chave do locker (requer token JWT) |
 | GET | `/api/reservas` | Lista as reservas do usuario logado (requer token JWT) |
+| GET | `/api/chat/:itemId` | Lista mensagens da conversa do item (requer token JWT) |
+| POST | `/api/chat/:itemId` | Envia mensagem e gera resposta mock do locador (requer token JWT) |
 
 > Rotas protegidas exigem o header `Authorization: Bearer <token>` (token obtido no login/register).
 

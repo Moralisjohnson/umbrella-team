@@ -33,3 +33,19 @@ CREATE TABLE IF NOT EXISTS usuarios (
   senha_hash  TEXT NOT NULL,
   criado_em   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS reservas (
+  id            SERIAL PRIMARY KEY,
+  item_id       INTEGER NOT NULL REFERENCES itens(id) ON DELETE CASCADE,
+  usuario_id    INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  retirada      TIMESTAMPTZ NOT NULL,
+  devolucao     TIMESTAMPTZ NOT NULL,
+  pagamento     TEXT NOT NULL,
+  total         NUMERIC(10, 2) NOT NULL,
+  taxa          NUMERIC(10, 2) NOT NULL DEFAULT 0,
+  chave_locker  TEXT NOT NULL,
+  status        TEXT NOT NULL DEFAULT 'confirmada',
+  criado_em     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_reservas_usuario_id ON reservas (usuario_id);

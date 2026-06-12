@@ -54,6 +54,19 @@ export async function atualizarPerfil(req, res, next) {
   }
 }
 
+// DELETE /api/conta  (protegido)
+// Exclui a conta do usuario logado e seus anuncios.
+// Reservas e mensagens do usuario caem por cascata (FK ON DELETE CASCADE).
+export async function removerConta(req, res, next) {
+  try {
+    await query("DELETE FROM itens WHERE usuario_id = $1", [req.usuario.id]);
+    await query("DELETE FROM usuarios WHERE id = $1", [req.usuario.id]);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
 // GET /api/conta/alugueis  (protegido)
 // Reservas do usuario logado (com dados do item).
 export async function alugueis(req, res, next) {

@@ -20,6 +20,7 @@ function App() {
       <Route path="/esqueci-senha" element={<EsqueciSenha />} />
       <Route path="/busca" element={<Busca />} />
       <Route path="/anunciar" element={<Anunciar />} />
+      <Route path="/anunciar/:id" element={<Anunciar />} />
       <Route path="/reserva/:id" element={<Reserva />} />
       <Route path="/chat/:id" element={<Chat />} />
       <Route path="/minha-conta" element={<MinhaConta />} />

@@ -102,8 +102,8 @@ export async function criarItem(req, res, next) {
   }
 }
 
-// PATCH /api/itens/:id  (protegido)  { ativo }
-// Pausa/reativa um anuncio. So o dono pode alterar.
+// PATCH /api/itens/:id  (protegido)
+// Edita os campos enviados e/ou pausa/reativa (ativo). So o dono pode alterar.
 export async function atualizarItem(req, res, next) {
   try {
     const dono = await query("SELECT usuario_id FROM itens WHERE id = $1", [
@@ -116,15 +116,57 @@ export async function atualizarItem(req, res, next) {
       return res.status(403).json({ erro: "Voce nao e o dono deste anuncio" });
     }
 
-    if (typeof req.body.ativo !== "boolean") {
-      return res.status(400).json({ erro: "Campo 'ativo' (boolean) e obrigatorio" });
+    // Monta o SET dinamico so com os campos enviados (lista fixa = sem injecao).
+    const permitidos = ["nome", "categoria", "descricao", "local", "imagem", "preco", "ativo"];
+    const sets = [];
+    const params = [];
+
+    for (const campo of permitidos) {
+      if (req.body[campo] === undefined) continue;
+      let valor = req.body[campo];
+      if (campo === "preco") {
+        valor = Number(valor);
+        if (!(valor > 0)) {
+          return res.status(400).json({ erro: "Preco deve ser maior que zero" });
+        }
+      }
+      if (campo === "ativo" && typeof valor !== "boolean") {
+        return res.status(400).json({ erro: "Campo 'ativo' deve ser boolean" });
+      }
+      params.push(valor);
+      sets.push(`${campo} = $${params.length}`);
     }
 
+    if (!sets.length) {
+      return res.status(400).json({ erro: "Nenhum campo para atualizar" });
+    }
+
+    params.push(req.params.id);
     const { rows } = await query(
-      "UPDATE itens SET ativo = $1 WHERE id = $2 RETURNING *",
-      [req.body.ativo, req.params.id]
+      `UPDATE itens SET ${sets.join(", ")} WHERE id = $${params.length} RETURNING *`,
+      params
     );
     res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// DELETE /api/itens/:id  (protegido)
+// Remove o anuncio (so o dono). Cascata em reservas/avaliacoes/mensagens do item.
+export async function removerItem(req, res, next) {
+  try {
+    const dono = await query("SELECT usuario_id FROM itens WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (!dono.rows.length) {
+      return res.status(404).json({ erro: "Item nao encontrado" });
+    }
+    if (dono.rows[0].usuario_id !== req.usuario.id) {
+      return res.status(403).json({ erro: "Voce nao e o dono deste anuncio" });
+    }
+    await query("DELETE FROM itens WHERE id = $1", [req.params.id]);
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

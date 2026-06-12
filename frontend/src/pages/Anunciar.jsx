@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Tag, DollarSign, MapPin, ImagePlus, ArrowLeft } from "lucide-react";
 import { api, estaLogado } from "../api/client";
@@ -8,6 +8,8 @@ const CATEGORIAS = ["Ferramentas", "Camping", "Eventos", "Limpeza", "Lazer", "Ou
 
 const Anunciar = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const editando = Boolean(id);
   const [titulo, setTitulo] = useState("");
   const [categoria, setCategoria] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -19,13 +21,25 @@ const Anunciar = () => {
   const [erro, setErro] = useState("");
   const [fotoPreview, setFotoPreview] = useState(null);
 
-  // Anunciar exige login: a rota POST /api/itens agora pede token JWT.
-  // Sem sessao, manda o usuario para a tela de login.
+  // Exige login. Ao editar, carrega os dados do anuncio para preencher o form.
   useEffect(() => {
     if (!estaLogado()) {
       navigate("/login");
+      return;
     }
-  }, [navigate]);
+    if (editando) {
+      api(`/itens/${id}`)
+        .then((item) => {
+          setTitulo(item.nome || "");
+          setCategoria(item.categoria || "");
+          setDescricao(item.descricao || "");
+          setPreco(item.preco != null ? String(item.preco) : "");
+          setLocal(item.local || "");
+          setFotoPreview(item.imagem || null);
+        })
+        .catch(() => setErro("Nao foi possivel carregar o anuncio."));
+    }
+  }, [navigate, editando, id]);
 
   // Validacao so aparece depois do primeiro clique em "Publicar".
   const tituloInvalido = tentouEnviar && titulo.trim() === "";
@@ -58,21 +72,23 @@ const Anunciar = () => {
       return;
     }
 
-    // Cadastro real do anuncio no backend (POST /api/itens, rota autenticada).
+    // Cria (POST) ou edita (PATCH) o anuncio no backend (rota autenticada).
     setCarregando(true);
+    const body = {
+      nome: titulo,
+      categoria,
+      descricao,
+      preco: Number(preco),
+      local,
+      imagem: fotoPreview,
+    };
     try {
-      await api("/itens", {
-        method: "POST",
-        body: {
-          nome: titulo,
-          categoria,
-          descricao,
-          preco: Number(preco),
-          local,
-          imagem: fotoPreview,
-        },
-        auth: true,
-      });
+      if (editando) {
+        await api(`/itens/${id}`, { method: "PATCH", body, auth: true });
+        navigate("/minha-conta");
+        return;
+      }
+      await api("/itens", { method: "POST", body, auth: true });
       setPublicado(true);
       // Limpa os campos apos publicar com sucesso.
       setTitulo("");
@@ -118,9 +134,13 @@ const Anunciar = () => {
           </Link>
 
           <div className="card border-0 shadow-sm rounded-0 bg-white p-4">
-            <h1 className="h4 fw-bold text-dark mb-1">Anunciar um item</h1>
+            <h1 className="h4 fw-bold text-dark mb-1">
+              {editando ? "Editar anuncio" : "Anunciar um item"}
+            </h1>
             <p className="text-muted small mb-4">
-              Preencha os dados do objeto que voce quer disponibilizar para aluguel.
+              {editando
+                ? "Atualize os dados do seu anuncio."
+                : "Preencha os dados do objeto que voce quer disponibilizar para aluguel."}
             </p>
 
             {publicado && (
@@ -318,8 +338,10 @@ const Anunciar = () => {
                 {carregando ? (
                   <>
                     <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                    Publicando...
+                    {editando ? "Salvando..." : "Publicando..."}
                   </>
+                ) : editando ? (
+                  "Salvar alteracoes"
                 ) : (
                   "Publicar anuncio"
                 )}

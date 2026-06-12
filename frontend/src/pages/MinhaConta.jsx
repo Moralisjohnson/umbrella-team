@@ -10,6 +10,7 @@ import {
   Edit,
   KeyRound,
   PauseCircle,
+  Trash2,
 } from "lucide-react";
 import { api, estaLogado, getToken, setSessao } from "../api/client";
 
@@ -71,6 +72,23 @@ const MinhaConta = () => {
       );
     } catch (err) {
       console.error("Falha ao pausar/reativar:", err);
+    }
+  };
+
+  // Exclui um anuncio (com confirmacao).
+  const removerAnuncio = async (item) => {
+    if (
+      !window.confirm(
+        `Excluir o anuncio "${item.nome}"? Esta acao nao pode ser desfeita.`
+      )
+    ) {
+      return;
+    }
+    try {
+      await api(`/itens/${item.id}`, { method: "DELETE", auth: true });
+      setAnuncios((lista) => lista.filter((a) => a.id !== item.id));
+    } catch (err) {
+      console.error("Falha ao excluir:", err);
     }
   };
 
@@ -302,13 +320,28 @@ const MinhaConta = () => {
                         R$ {item.preco}{" "}
                         <span className="fs-6 text-muted fw-normal">/ dia</span>
                       </div>
-                      <button
-                        type="button"
-                        className="btn btn-light btn-sm rounded-0 fw-semibold d-flex align-items-center gap-1 text-secondary"
-                        onClick={() => togglePausa(item)}
-                      >
-                        <PauseCircle size={14} /> {item.ativo ? "Pausar" : "Reativar"}
-                      </button>
+                      <div className="d-flex flex-wrap gap-2">
+                        <Link
+                          to={`/anunciar/${item.id}`}
+                          className="btn btn-outline-aqua btn-sm rounded-0 fw-semibold d-flex align-items-center gap-1"
+                        >
+                          <Edit size={14} /> Editar
+                        </Link>
+                        <button
+                          type="button"
+                          className="btn btn-light btn-sm rounded-0 fw-semibold d-flex align-items-center gap-1 text-secondary"
+                          onClick={() => togglePausa(item)}
+                        >
+                          <PauseCircle size={14} /> {item.ativo ? "Pausar" : "Reativar"}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger btn-sm rounded-0 fw-semibold d-flex align-items-center gap-1"
+                          onClick={() => removerAnuncio(item)}
+                        >
+                          <Trash2 size={14} /> Excluir
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

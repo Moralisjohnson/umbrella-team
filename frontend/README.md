@@ -1,7 +1,7 @@
-<h1 align="center">🤝 Hand 2 Hand</h1>
+<h1 align="center">Hand 2 Hand</h1>
 
 <p align="center">
-  <strong>Marketplace de aluguel ponto a ponto</strong> — conecte quem tem objetos parados a quem precisa deles, com retirada segura em <em>lockers</em> digitais.
+  <strong>Marketplace de aluguel ponto a ponto (P2P)</strong> — conecte quem tem objetos parados a quem precisa deles, com retirada 100% segura e autônoma em <em>lockers</em> digitais.
 </p>
 
 <p align="center">
@@ -13,117 +13,68 @@
 
 ---
 
-## 📖 Sobre
+## Sobre o Projeto
 
-O **Hand 2 Hand** é uma plataforma onde um **locador** anuncia objetos para alugar e um **locatário** os reserva por período, com retirada e devolução em **armários digitais (lockers)**. O objetivo é transformar objetos sem uso em renda, de forma segura e sustentável.
+O **Hand 2 Hand** é uma plataforma inovadora de economia circular. Ela permite que um **locador** anuncie objetos subutilizados (ferramentas, equipamentos esportivos, eletrônicos) para aluguel, e que um **locatário** faça a reserva por período determinado. O grande diferencial é a logística: retiradas e devoluções são feitas em **armários digitais (lockers)**, eliminando a necessidade de encontros presenciais e garantindo flexibilidade e segurança.
 
-> ⚠️ **Projeto em desenvolvimento.** Os dados ainda são *mockados* (sem backend) — veja [Roadmap](#-roadmap).
-
----
-
-## ✨ Funcionalidades
-
-- 🏠 **Início** com destaques e busca
-- 🔎 **Busca** de itens com filtro por categoria e ordenação
-- 📄 **Detalhes do item** (por `id`) com widget de agendamento e cálculo de total
-- 📢 **Anunciar item** (fluxo do locador)
-- 🔐 **Autenticação completa**: login, cadastro e recuperação de senha — com validações, estados de carregando e acessibilidade
+> **Status do Projeto:** Frontend em desenvolvimento avançado. A aplicação atualmente utiliza um módulo cliente (`api/client.js`) para simular chamadas assíncronas a um backend (Mock API).
 
 ---
 
-## 🧱 Stack
+## Funcionalidades Implementadas
 
-| Camada | Tecnologia |
-|---|---|
-| UI | [React 19](https://react.dev/) |
-| Build / Dev server | [Vite 8](https://vite.dev/) |
-| Estilo | [Bootstrap 5.3](https://getbootstrap.com/) + [react-bootstrap](https://react-bootstrap.netlify.app/) |
-| Rotas | [react-router-dom 7](https://reactrouter.com/) |
-| Ícones | [lucide-react](https://lucide.dev/) |
-| Lint | ESLint |
+* **Autenticação Completa:** Fluxo de cadastro e login com validações de formulário em tempo real (Regex para e-mail, força de senha) e gerenciamento de sessão no lado do cliente.
+* **Motor de Busca e Filtros:** Pesquisa textual combinada com filtros de categoria e ordenação múltipla (relevância, maior/menor preço, avaliação) processados dinamicamente no frontend.
+* **Sistema de Agendamento:** Cálculo dinâmico de diárias baseado em inputs de *datetime-local*, somado automaticamente a taxas de serviço do locker.
+* **Chat P2P:** Interface de mensagens em tempo real simulada, permitindo a comunicação direta entre locatário e locador antes ou durante a reserva.
+* **Design Responsivo e Temático:** Interface construída com *Mobile-First* em mente, utilizando Bootstrap 5 e um design system focado na cor primária "Aqua" (`#38b2ac`), com componentes de bordas retas (`rounded-0`) para um visual moderno e utilitário.
 
 ---
 
-## 🗺️ Rotas
+## Tecnologias e Stack
 
-| Rota | Página | Descrição |
-|---|---|---|
-| `/` | `HomePage` | Início: hero, destaques e busca |
-| `/busca` | `Busca` | Resultados com filtro e ordenação |
-| `/detalhes/:id` | `DetalhesAgendamento` | Detalhes do item + agendamento |
-| `/anunciar` | `Anunciar` | Formulário para anunciar um item |
-| `/login` | `Login` | Entrar |
-| `/cadastro` | `Cadastro` | Criar conta |
-| `/esqueci-senha` | `EsqueciSenha` | Recuperação de senha |
-
----
-
-## 📂 Estrutura
-
-```
-project_umbrella/
-├── public/
-├── src/
-│   ├── assets/                  # imagens e ícones
-│   ├── data/
-│   │   └── itens.js             # fonte única de dados dos itens (mock)
-│   ├── pages/                   # uma tela por arquivo
-│   │   ├── HomePage.jsx
-│   │   ├── Busca.jsx
-│   │   ├── DetalhesAgendamento.jsx
-│   │   ├── Anunciar.jsx
-│   │   ├── Login.jsx
-│   │   ├── Cadastro.jsx
-│   │   └── EsqueciSenha.jsx
-│   ├── App.jsx                  # mapa de rotas
-│   ├── main.jsx                 # ponto de entrada (React + Bootstrap + Router)
-│   └── index.css                # reset mínimo (o Bootstrap cuida do resto)
-├── index.html
-├── package.json
-└── vite.config.js
-```
+| Camada | Tecnologia | Propósito |
+| :--- | :--- | :--- |
+| **UI Framework** | [React 19](https://react.dev/) | Construção de interfaces baseadas em componentes. |
+| **Build Tool** | [Vite 8](https://vite.dev/) | Servidor de desenvolvimento rápido e empacotamento. |
+| **Estilização** | [Bootstrap 5.3](https://getbootstrap.com/) | Sistema de grids, utilitários CSS e responsividade. |
+| **Roteamento** | [React Router 7](https://reactrouter.com/) | Navegação SPA (Single Page Application). |
+| **Iconografia** | [Lucide React](https://lucide.dev/) | Biblioteca de ícones consistentes e leves. |
+| **Linter** | ESLint | Padronização e qualidade de código. |
 
 ---
 
-## 🚀 Como rodar
+## Mapa de Rotas
 
-**Pré-requisitos:** [Node.js](https://nodejs.org/) 20+ (recomendado 24) e npm.
+A navegação da aplicação está estruturada da seguinte forma:
 
-```bash
-# 1. Instalar as dependências
-npm install
+| Rota | Componente | Descrição do Fluxo |
+| :--- | :--- | :--- |
+| `/` | `HomePage` | Landing page com hero section, destaques e atalho de busca. |
+| `/busca` | `Busca` | Listagem de itens com sidebar de filtros e ordenação interativa. |
+| `/detalhes/:id` | `DetalhesAgendamento`| Visão aprofundada do item, regras de multa, local do locker e widget de cálculo de reserva. |
+| `/reserva/:id` | `Reserva` | Fluxo de checkout e geração da chave digital do locker. |
+| `/chat/:id` | `Chat` | Ambiente de mensagens entre o usuário logado e o dono do item. |
+| `/anunciar` | `Anunciar` | Formulário para locadores cadastrarem novos objetos no catálogo. |
+| `/minha-conta` | `MinhaConta` | Painel de controle do usuário (histórico de aluguéis, pagamentos e anúncios). |
+| `/login` | `Login` | Autenticação de usuários existentes. |
+| `/cadastro` | `Cadastro` | Criação de novas contas com validação estrita. |
+| `/esqueci-senha`| `EsqueciSenha` | Fluxo de recuperação de credenciais. |
 
-# 2. Subir o servidor de desenvolvimento (http://localhost:5173)
-npm run dev
-```
+---
+
+## Como Executar Localmente
+
+**Pré-requisitos:** Certifique-se de ter o [Node.js](https://nodejs.org/) (versão 20 ou superior) instalado em sua máquina.
+
+1. **Clone o repositório e acesse a pasta:**
+   ```bash
+   git clone <url-do-repositorio>
+   cd project_umbrella
 
 ### Outros comandos
-
 ```bash
 npm run build     # gera a versão de produção em dist/
 npm run preview   # serve o build de produção localmente
 npm run lint      # roda o ESLint
 ```
-
----
-
-## 🧩 Convenções
-
-- **Tema visual "aqua":** cor `#38b2ac` (classes `.text-aqua`, `.btn-aqua`, ...), cantos retos (`rounded-0`) e largura cheia (`container-fluid`).
-- **Dados centralizados:** `src/data/itens.js` é a fonte única; as telas leem de lá (sem duplicar listas).
-- **Mock de API:** os formulários simulam chamadas com `setTimeout` e marcam o ponto de integração real com `// TODO`.
-
-## 🌿 Fluxo de versionamento
-
-- Uma branch por trabalho, criada a partir da `main`: `feature/<nome>`, `bug/<nome>`, `docs/<nome>`.
-- Toda mudança na `main` entra via **Pull Request** (a branch é protegida por ruleset).
-
----
-
-## 🧭 Roadmap
-
-- [ ] Integração com backend real (itens, autenticação, anúncios)
-- [ ] Fluxo de reserva ("Reservar e Gerar Chave" → confirmação + chave do locker)
-- [ ] Área "Minha conta" (aluguéis e anúncios)
-- [ ] Upload real de imagens no anúncio
-- [ ] Páginas institucionais do rodapé

@@ -2,10 +2,14 @@ import "dotenv/config";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import bcrypt from "bcryptjs";
 import { pool } from "./pool.js";
 import { itens } from "../data/store.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Conta de teste (hardcoded). Recriada/atualizada a cada db:setup.
+const ADMIN = { nome: "Admin", email: "admin@hand2hand.com", senha: "admin123" };
 
 // Cria o schema e popula o banco com os itens de exemplo.
 // Rode com: npm run db:setup
@@ -46,7 +50,17 @@ async function seed() {
     }
   }
 
+  // 3. Conta de teste (idempotente): cria ou atualiza a senha conhecida.
+  const senhaHash = await bcrypt.hash(ADMIN.senha, 10);
+  await pool.query(
+    `INSERT INTO usuarios (nome, email, senha_hash)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (email) DO UPDATE SET nome = EXCLUDED.nome, senha_hash = EXCLUDED.senha_hash`,
+    [ADMIN.nome, ADMIN.email, senhaHash]
+  );
+
   console.log(`Seed concluido: ${itens.length} itens inseridos.`);
+  console.log(`Conta de teste: ${ADMIN.email} / ${ADMIN.senha}`);
   await pool.end();
 }
 

@@ -4,6 +4,7 @@ import {
   obterItem,
   criarItem,
   atualizarItem,
+  removerItem,
 } from "../controllers/itens.controller.js";
 import {
   listarAvaliacoes,
@@ -16,7 +17,8 @@ const router = Router();
 router.get("/", listarItens); // GET    /api/itens
 router.post("/", autenticar, criarItem); //  POST   /api/itens  (protegido)
 router.get("/:id", obterItem); // GET    /api/itens/:id
-router.patch("/:id", autenticar, atualizarItem); // PATCH /api/itens/:id (pausar/reativar, dono)
+router.patch("/:id", autenticar, atualizarItem); // PATCH  /api/itens/:id (editar/pausar, dono)
+router.delete("/:id", autenticar, removerItem); // DELETE /api/itens/:id (excluir, dono)
 
 // Avaliacoes aninhadas no item.
 router.get("/:id/avaliacoes", listarAvaliacoes); // GET  /api/itens/:id/avaliacoes

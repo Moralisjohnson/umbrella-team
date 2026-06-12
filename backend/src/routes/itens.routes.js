@@ -3,6 +3,7 @@ import {
   listarItens,
   obterItem,
   criarItem,
+  atualizarItem,
 } from "../controllers/itens.controller.js";
 import {
   listarAvaliacoes,
@@ -15,6 +16,7 @@ const router = Router();
 router.get("/", listarItens); // GET    /api/itens
 router.post("/", autenticar, criarItem); //  POST   /api/itens  (protegido)
 router.get("/:id", obterItem); // GET    /api/itens/:id
+router.patch("/:id", autenticar, atualizarItem); // PATCH /api/itens/:id (pausar/reativar, dono)
 
 // Avaliacoes aninhadas no item.
 router.get("/:id/avaliacoes", listarAvaliacoes); // GET  /api/itens/:id/avaliacoes

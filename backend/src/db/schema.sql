@@ -67,3 +67,6 @@ ALTER TABLE itens ADD COLUMN IF NOT EXISTS usuario_id INTEGER REFERENCES usuario
 
 -- Imagem do item (base64 / data URL).
 ALTER TABLE itens ADD COLUMN IF NOT EXISTS imagem TEXT;
+
+-- Anuncio ativo (false = pausado, nao aparece nas listagens publicas).
+ALTER TABLE itens ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAULT true;

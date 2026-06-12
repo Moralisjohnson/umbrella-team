@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Tag, DollarSign, MapPin, ImagePlus, ArrowLeft } from "lucide-react";
+import { api } from "../api/client";
 
 const CATEGORIAS = ["Ferramentas", "Camping", "Eventos", "Limpeza", "Lazer", "Outros"];
 
@@ -14,6 +15,7 @@ const Anunciar = () => {
   const [tentouEnviar, setTentouEnviar] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [publicado, setPublicado] = useState(false);
+  const [erro, setErro] = useState("");
 
   // Validacao so aparece depois do primeiro clique em "Publicar".
   const tituloInvalido = tentouEnviar && titulo.trim() === "";
@@ -22,10 +24,11 @@ const Anunciar = () => {
   const precoInvalido = tentouEnviar && (preco === "" || Number(preco) <= 0);
   const localInvalido = tentouEnviar && local.trim() === "";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTentouEnviar(true);
     setPublicado(false);
+    setErro("");
 
     if (
       titulo.trim() === "" ||
@@ -38,14 +41,32 @@ const Anunciar = () => {
       return;
     }
 
-    // Simulacao de chamada a API (substituir pelo cadastro real do anuncio).
+    // Cadastro real do anuncio no backend (POST /api/itens, rota publica).
     setCarregando(true);
-    setTimeout(() => {
-      setCarregando(false);
+    try {
+      await api("/itens", {
+        method: "POST",
+        body: {
+          nome: titulo,
+          categoria,
+          descricao,
+          preco: Number(preco),
+          local,
+        },
+      });
       setPublicado(true);
-      console.log("Anuncio publicado:", { titulo, categoria, preco: Number(preco), local });
-      // TODO: enviar o anuncio ao backend e redirecionar para os detalhes.
-    }, 1200);
+      // Limpa os campos apos publicar com sucesso.
+      setTitulo("");
+      setCategoria("");
+      setDescricao("");
+      setPreco("");
+      setLocal("");
+      setTentouEnviar(false);
+    } catch (err) {
+      setErro(err.message || "Nao foi possivel publicar o anuncio.");
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (
@@ -79,6 +100,12 @@ const Anunciar = () => {
             {publicado && (
               <div className="alert alert-success rounded-0 py-2 small" role="alert">
                 Anuncio publicado com sucesso!
+              </div>
+            )}
+
+            {erro && (
+              <div className="alert alert-danger rounded-0 py-2 small" role="alert">
+                {erro}
               </div>
             )}
 

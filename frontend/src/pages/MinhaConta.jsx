@@ -12,7 +12,7 @@ import {
   PauseCircle,
   Trash2,
 } from "lucide-react";
-import { api, estaLogado, getToken, setSessao } from "../api/client";
+import { api, estaLogado, getToken, setSessao, limparSessao } from "../api/client";
 
 const MinhaConta = () => {
   const navigate = useNavigate();
@@ -89,6 +89,24 @@ const MinhaConta = () => {
       setAnuncios((lista) => lista.filter((a) => a.id !== item.id));
     } catch (err) {
       console.error("Falha ao excluir:", err);
+    }
+  };
+
+  // Exclui a conta do usuario (com confirmacao), encerra a sessao e volta a home.
+  const excluirConta = async () => {
+    if (
+      !window.confirm(
+        "Excluir sua conta? Seus anuncios serao removidos e esta acao nao pode ser desfeita."
+      )
+    ) {
+      return;
+    }
+    try {
+      await api("/conta", { method: "DELETE", auth: true });
+      limparSessao();
+      navigate("/");
+    } catch (err) {
+      setErroPerfil(err.message || "Nao foi possivel excluir a conta.");
     }
   };
 
@@ -437,6 +455,14 @@ const MinhaConta = () => {
                         <KeyRound size={16} /> Trocar senha
                       </Link>
                     </div>
+                    <hr className="my-4" />
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger rounded-0 fw-semibold d-flex align-items-center gap-2"
+                      onClick={excluirConta}
+                    >
+                      <Trash2 size={16} /> Excluir conta
+                    </button>
                   </>
                 )}
               </div>

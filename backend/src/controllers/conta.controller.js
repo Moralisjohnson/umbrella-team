@@ -40,11 +40,8 @@ export async function alugueis(req, res, next) {
 // Itens anunciados pelo usuario logado.
 export async function anuncios(req, res, next) {
   try {
-    // TODO: ligar itens a usuarios via FK (usuario_id) para anuncios reais
     const { rows } = await query(
-      `SELECT * FROM itens
-       WHERE dono = (SELECT nome FROM usuarios WHERE id = $1)
-       ORDER BY id`,
+      "SELECT * FROM itens WHERE usuario_id = $1 ORDER BY id",
       [req.usuario.id]
     );
     res.json(rows);

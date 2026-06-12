@@ -61,7 +61,7 @@ export async function obterItem(req, res, next) {
 // Cria um novo anuncio (tela Anunciar do front).
 export async function criarItem(req, res, next) {
   try {
-    const { titulo, nome, categoria, descricao, preco, local, dono, endereco, locker } =
+    const { titulo, nome, categoria, descricao, preco, local, endereco, locker } =
       req.body;
     const nomeItem = nome || titulo;
 
@@ -71,19 +71,26 @@ export async function criarItem(req, res, next) {
       });
     }
 
+    // Rota protegida: req.usuario existe. Usa o nome do usuario logado como dono.
+    const u = await query("SELECT nome FROM usuarios WHERE id = $1", [
+      req.usuario.id,
+    ]);
+    const dono = u.rows[0].nome;
+
     const { rows } = await query(
-      `INSERT INTO itens (nome, categoria, descricao, preco, dono, local, endereco, locker)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO itens (nome, categoria, descricao, preco, dono, local, endereco, locker, usuario_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
       [
         nomeItem,
         categoria,
         descricao || "",
         Number(preco),
-        dono || "Voce",
+        dono,
         local || "",
         endereco || "",
         locker || "N/A",
+        req.usuario.id,
       ]
     );
 

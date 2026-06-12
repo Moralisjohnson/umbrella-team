@@ -8,11 +8,12 @@ import {
   listarAvaliacoes,
   criarAvaliacao,
 } from "../controllers/avaliacoes.controller.js";
+import { autenticar } from "../middleware/auth.js";
 
 const router = Router();
 
 router.get("/", listarItens); // GET    /api/itens
-router.post("/", criarItem); //  POST   /api/itens
+router.post("/", autenticar, criarItem); //  POST   /api/itens  (protegido)
 router.get("/:id", obterItem); // GET    /api/itens/:id
 
 // Avaliacoes aninhadas no item.

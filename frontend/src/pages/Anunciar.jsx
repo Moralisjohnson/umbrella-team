@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Tag, DollarSign, MapPin, ImagePlus, ArrowLeft } from "lucide-react";
-import { api } from "../api/client";
+import { api, estaLogado } from "../api/client";
 
 const CATEGORIAS = ["Ferramentas", "Camping", "Eventos", "Limpeza", "Lazer", "Outros"];
 
 const Anunciar = () => {
+  const navigate = useNavigate();
   const [titulo, setTitulo] = useState("");
   const [categoria, setCategoria] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -16,6 +17,14 @@ const Anunciar = () => {
   const [carregando, setCarregando] = useState(false);
   const [publicado, setPublicado] = useState(false);
   const [erro, setErro] = useState("");
+
+  // Anunciar exige login: a rota POST /api/itens agora pede token JWT.
+  // Sem sessao, manda o usuario para a tela de login.
+  useEffect(() => {
+    if (!estaLogado()) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   // Validacao so aparece depois do primeiro clique em "Publicar".
   const tituloInvalido = tentouEnviar && titulo.trim() === "";
@@ -41,7 +50,7 @@ const Anunciar = () => {
       return;
     }
 
-    // Cadastro real do anuncio no backend (POST /api/itens, rota publica).
+    // Cadastro real do anuncio no backend (POST /api/itens, rota autenticada).
     setCarregando(true);
     try {
       await api("/itens", {
@@ -53,6 +62,7 @@ const Anunciar = () => {
           preco: Number(preco),
           local,
         },
+        auth: true,
       });
       setPublicado(true);
       // Limpa os campos apos publicar com sucesso.
@@ -63,7 +73,13 @@ const Anunciar = () => {
       setLocal("");
       setTentouEnviar(false);
     } catch (err) {
-      setErro(err.message || "Nao foi possivel publicar o anuncio.");
+      const msg = err.message || "Nao foi possivel publicar o anuncio.";
+      setErro(msg);
+      // Se a falha for de autorizacao (401 / sessao invalida), volta ao login.
+      const naoAutorizado = /401|nao autorizado|token|sessao/i.test(msg);
+      if (naoAutorizado) {
+        navigate("/login");
+      }
     } finally {
       setCarregando(false);
     }

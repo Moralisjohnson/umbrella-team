@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
+import { api, setSessao } from "../api/client";
 
 // Formato básico de e-mail: algo@algo.algo (sem espaços).
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -22,7 +24,7 @@ const Login = () => {
   const emailInvalido = emailVazio || emailFormatoInvalido;
   const senhaInvalida = tentouEnviar && senha.trim() === "";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTentouEnviar(true);
     setErroLogin("");
@@ -36,22 +38,20 @@ const Login = () => {
       return;
     }
 
-    // Simulação de chamada à API (substituir pela autenticação real depois).
+    // Autenticacao real contra a API.
     setCarregando(true);
-    setTimeout(() => {
+    try {
+      const dados = await api("/auth/login", {
+        method: "POST",
+        body: { email: email.trim(), senha },
+      });
+      setSessao(dados.token, dados.usuario);
+      navigate("/");
+    } catch (err) {
+      setErroLogin(err.message);
+    } finally {
       setCarregando(false);
-
-      // MOCK: enquanto não há backend, só estas credenciais "passam".
-      const credenciaisOk =
-        email.trim() === "user@hand2hand.com" && senha === "123456";
-
-      if (credenciaisOk) {
-        console.log("Login bem-sucedido:", { email });
-        // TODO: guardar token e redirecionar o usuário.
-      } else {
-        setErroLogin("E-mail ou senha incorretos.");
-      }
-    }, 1200);
+    }
   };
 
   return (

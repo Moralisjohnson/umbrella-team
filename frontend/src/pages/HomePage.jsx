@@ -1,11 +1,19 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Search, Filter, Star, Globe } from "lucide-react";
-import { ITENS } from "../data/itens";
+import { api } from "../api/client";
 
 const Hand2HandApp = () => {
   const navigate = useNavigate();
+
+  // Busca os itens na API real; em caso de erro, mantem lista vazia.
+  const [itens, setItens] = useState([]);
+  useEffect(() => {
+    api("/itens")
+      .then(setItens)
+      .catch(() => setItens([]));
+  }, []);
 
   const handleBusca = (e) => {
     e.preventDefault();
@@ -152,7 +160,7 @@ const Hand2HandApp = () => {
         <section>
           <h2 className="h4 text-aqua fw-bold mb-4">Destaques para Alugar</h2>
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            {ITENS.slice(0, 4).map((item) => (
+            {itens.slice(0, 4).map((item) => (
               <div key={item.id} className="col">
                 <Link
                   to={`/detalhes/${item.id}`}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Star, Send } from "lucide-react";
+import { api, getUsuario } from "../api/client";
 
 // Renderiza N estrelas; as primeiras `nota` ficam preenchidas (text-warning).
 const Estrelas = ({ nota, size = 16 }) => (
@@ -15,14 +16,15 @@ const Estrelas = ({ nota, size = 16 }) => (
   </span>
 );
 
-const Avaliacoes = ({ avaliacoes }) => {
+const Avaliacoes = ({ itemId, avaliacoes }) => {
   const lista = avaliacoes || [];
 
-  // Estado local para permitir adicionar avaliacoes direto na tela (mock).
+  // Estado local com a lista de avaliacoes ja carregada do item.
   const [itens, setItens] = useState(lista);
   const [nota, setNota] = useState(0);
   const [comentario, setComentario] = useState("");
   const [tentouEnviar, setTentouEnviar] = useState(false);
+  const [erro, setErro] = useState("");
 
   // Nota media com uma casa decimal (0,0 quando nao ha avaliacoes).
   const total = itens.length;
@@ -35,24 +37,34 @@ const Avaliacoes = ({ avaliacoes }) => {
   const notaInvalida = tentouEnviar && nota <= 0;
   const comentarioInvalido = tentouEnviar && comentario.trim() === "";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTentouEnviar(true);
+    setErro("");
 
     if (nota <= 0 || comentario.trim() === "") {
       return;
     }
 
-    // TODO: enviar a avaliacao ao backend; por enquanto so atualiza o estado local.
-    setItens((anteriores) => [
-      ...anteriores,
-      { autor: "Você", nota, comentario: comentario.trim() },
-    ]);
+    // Envia a avaliacao ao backend usando o nome do usuario logado como autor.
+    const autor = getUsuario()?.nome || "Voce";
+    const corpo = { autor, nota, comentario: comentario.trim() };
 
-    // Limpa o formulario apos adicionar.
-    setNota(0);
-    setComentario("");
-    setTentouEnviar(false);
+    try {
+      const criada = await api(`/itens/${itemId}/avaliacoes`, {
+        method: "POST",
+        body: corpo,
+      });
+
+      setItens((anteriores) => [...anteriores, criada || corpo]);
+
+      // Limpa o formulario apos adicionar.
+      setNota(0);
+      setComentario("");
+      setTentouEnviar(false);
+    } catch (e) {
+      setErro("Nao foi possivel enviar a avaliacao. Tente novamente.");
+    }
   };
 
   return (
@@ -146,6 +158,8 @@ const Avaliacoes = ({ avaliacoes }) => {
               </div>
             )}
           </div>
+
+          {erro && <div className="text-danger small mb-2">{erro}</div>}
 
           <button
             type="submit"

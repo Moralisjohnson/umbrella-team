@@ -8,6 +8,7 @@ import {
   Calendar,
   Mail,
   Edit,
+  KeyRound,
   PauseCircle,
 } from "lucide-react";
 import { api, estaLogado, getToken, setSessao } from "../api/client";
@@ -375,13 +376,21 @@ const MinhaConta = () => {
                         <div className="fw-semibold text-dark">{email}</div>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      className="btn btn-aqua rounded-0 fw-semibold d-flex align-items-center gap-2"
-                      onClick={iniciarEdicao}
-                    >
-                      <Edit size={16} /> Editar perfil
-                    </button>
+                    <div className="d-flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-aqua rounded-0 fw-semibold d-flex align-items-center gap-2"
+                        onClick={iniciarEdicao}
+                      >
+                        <Edit size={16} /> Editar perfil
+                      </button>
+                      <Link
+                        to="/esqueci-senha"
+                        className="btn btn-outline-aqua rounded-0 fw-semibold d-flex align-items-center gap-2"
+                      >
+                        <KeyRound size={16} /> Trocar senha
+                      </Link>
+                    </div>
                   </>
                 )}
               </div>

@@ -146,12 +146,21 @@ const Busca = () => {
                     >
                       <div className="card h-100 border-0 shadow-sm rounded-0 overflow-hidden">
                         <div
-                          className="bg-aqua-light d-flex align-items-center justify-content-center"
+                          className="bg-aqua-light d-flex align-items-center justify-content-center overflow-hidden"
                           style={{ height: "160px" }}
                         >
-                          <span className="text-aqua opacity-50 small">
-                            Imagem do Produto
-                          </span>
+                          {item.imagem ? (
+                            <img
+                              src={item.imagem}
+                              alt={item.nome}
+                              className="w-100 h-100"
+                              style={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <span className="text-aqua opacity-50 small">
+                              Imagem do Produto
+                            </span>
+                          )}
                         </div>
                         <div className="card-body">
                           <span className="badge bg-aqua-light text-aqua rounded-0 mb-2">

@@ -7,7 +7,7 @@ const app = express();
 
 // Middlewares globais.
 app.use(cors()); // libera o front (Vite em localhost:5173) a consumir a API
-app.use(express.json()); // parseia corpo JSON das requisicoes
+app.use(express.json({ limit: "5mb" })); // JSON; limite maior p/ imagem em base64
 
 // Healthcheck / raiz da API.
 app.get("/", (req, res) => {

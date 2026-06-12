@@ -163,10 +163,19 @@ const ItemDetailsApp = () => {
           {/* COLUNA ESQUERDA: INFOS DO PRODUTO */}
           <div className="col-lg-7">
             <div
-              className="bg-aqua-light d-flex align-items-center justify-content-center text-aqua-light rounded-0 mb-4 position-relative"
+              className="bg-aqua-light d-flex align-items-center justify-content-center text-aqua-light rounded-0 mb-4 position-relative overflow-hidden"
               style={{ height: "400px" }}
             >
-              <span className="text-aqua opacity-50 fs-4">Imagem do Produto</span>
+              {item.imagem ? (
+                <img
+                  src={item.imagem}
+                  alt={item.nome}
+                  className="w-100 h-100"
+                  style={{ objectFit: "cover" }}
+                />
+              ) : (
+                <span className="text-aqua opacity-50 fs-4">Imagem do Produto</span>
+              )}
               <span className="position-absolute top-0 end-0 bg-aqua text-white px-3 py-1 m-3 small fw-bold">
                 DISPONIVEL
               </span>

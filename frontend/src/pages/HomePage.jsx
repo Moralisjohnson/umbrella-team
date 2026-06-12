@@ -187,12 +187,21 @@ const Hand2HandApp = () => {
                 >
                   <div className="card h-100 border-0 shadow-sm rounded-0 overflow-hidden">
                     <div
-                      className="card-img-top bg-aqua-light d-flex align-items-center justify-content-center text-aqua-light rounded-0"
+                      className="card-img-top bg-aqua-light d-flex align-items-center justify-content-center text-aqua-light rounded-0 overflow-hidden"
                       style={{ height: "180px" }}
                     >
-                      <span className="text-aqua opacity-50 small">
-                        Imagem do Produto
-                      </span>
+                      {item.imagem ? (
+                        <img
+                          src={item.imagem}
+                          alt={item.nome}
+                          className="w-100 h-100"
+                          style={{ objectFit: "cover" }}
+                        />
+                      ) : (
+                        <span className="text-aqua opacity-50 small">
+                          Imagem do Produto
+                        </span>
+                      )}
                     </div>
                     <div className="card-body">
                       <h3 className="card-title h6 fw-bold mb-2 text-dark">

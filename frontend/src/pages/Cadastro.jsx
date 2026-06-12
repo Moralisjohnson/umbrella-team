@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { User, Mail, Lock, UserPlus, Eye, EyeOff } from "lucide-react";
+import { api, setSessao } from "../api/client";
 
 // Formato básico de e-mail: algo@algo.algo (sem espaços).
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SENHA_MIN = 6;
 
 const Cadastro = () => {
+  const navigate = useNavigate();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -15,6 +17,7 @@ const Cadastro = () => {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [tentouEnviar, setTentouEnviar] = useState(false);
   const [carregando, setCarregando] = useState(false);
+  const [erroServidor, setErroServidor] = useState("");
 
   // Validação só aparece depois do primeiro clique em "Criar conta".
   const nomeInvalido = tentouEnviar && nome.trim() === "";
@@ -31,7 +34,7 @@ const Cadastro = () => {
   const confirmacaoInvalida =
     tentouEnviar && confirmarSenha !== "" && confirmarSenha !== senha;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTentouEnviar(true);
 
@@ -46,13 +49,23 @@ const Cadastro = () => {
       return;
     }
 
-    // Simulação de chamada à API (substituir pelo cadastro real depois).
+    // Cadastro real no backend.
     setCarregando(true);
-    setTimeout(() => {
+    setErroServidor("");
+    try {
+      const dados = await api("/auth/register", {
+        method: "POST",
+        body: { nome: nome.trim(), email: email.trim(), senha },
+      });
+      // Salva a sessao (token + usuario) e redireciona para a home.
+      setSessao(dados.token, dados.usuario);
+      navigate("/");
+    } catch (err) {
+      // Backend retorna 409 "E-mail ja cadastrado", 400, etc.
+      setErroServidor(err.message);
+    } finally {
       setCarregando(false);
-      console.log("Cadastro realizado:", { nome, email });
-      // TODO: criar a conta no backend e redirecionar/logar o usuário.
-    }, 1200);
+    }
   };
 
   return (
@@ -82,6 +95,13 @@ const Cadastro = () => {
         {/* Cartão do formulário */}
         <div className="card border-0 shadow-sm rounded-0 bg-white p-4">
           <h1 className="h4 fw-bold text-dark mb-4 text-center">Criar conta</h1>
+
+          {/* Erro vindo do servidor (ex.: e-mail ja cadastrado). */}
+          {erroServidor && (
+            <div className="alert alert-danger rounded-0 py-2 small" role="alert">
+              {erroServidor}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} noValidate>
             {/* Nome */}

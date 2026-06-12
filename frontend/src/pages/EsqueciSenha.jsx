@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Mail, ArrowLeft, Send } from "lucide-react";
+import { api } from "../api/client";
 
 // Formato basico de e-mail: algo@algo.algo (sem espacos).
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,7 +18,7 @@ const EsqueciSenha = () => {
     tentouEnviar && email.trim() !== "" && !EMAIL_REGEX.test(email.trim());
   const emailInvalido = emailVazio || emailFormatoInvalido;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTentouEnviar(true);
 
@@ -25,13 +26,23 @@ const EsqueciSenha = () => {
       return;
     }
 
-    // Simulacao de chamada a API (substituir pelo envio real do e-mail).
     setCarregando(true);
-    setTimeout(() => {
-      setCarregando(false);
+    try {
+      // O backend responde de forma generica (200 com message),
+      // entao tratamos sucesso simplesmente exibindo o estado "enviado".
+      await api("/auth/forgot-password", {
+        method: "POST",
+        body: { email: email.trim() },
+      });
       setEnviado(true);
-      console.log("Pedido de recuperacao para:", email);
-    }, 1200);
+    } catch (err) {
+      // Falha de rede ou erro inesperado: nao quebramos a tela.
+      // Mantemos a resposta generica para nao vazar se o e-mail existe.
+      console.error("Falha ao solicitar recuperacao de senha:", err);
+      setEnviado(true);
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (

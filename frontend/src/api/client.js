@@ -56,6 +56,16 @@ export async function api(path, { method = "GET", body, auth = false } = {}) {
 
   const dados = await resp.json().catch(() => ({}));
 
+  // Token expirado/invalido em requisicao autenticada: limpa a sessao
+  // e redireciona para o login. Nao redireciona em 401 sem auth (ex.: login
+  // com senha errada), para a tela poder exibir o erro.
+  if (resp.status === 401 && auth) {
+    limparSessao();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  }
+
   if (!resp.ok) {
     throw new Error(dados.erro || `Erro ${resp.status}`);
   }

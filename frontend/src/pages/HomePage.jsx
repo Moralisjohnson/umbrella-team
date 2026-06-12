@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Search, Filter, Star, Globe } from "lucide-react";
-import { api } from "../api/client";
+import { api, estaLogado, limparSessao } from "../api/client";
 
 const Hand2HandApp = () => {
   const navigate = useNavigate();
@@ -70,18 +70,37 @@ const Hand2HandApp = () => {
             >
               Anunciar
             </Link>
-            <Link
-              to="/minha-conta"
-              className="text-secondary text-decoration-none fw-medium"
-            >
-              Minha conta
-            </Link>
-            <Link
-              to="/login"
-              className="text-secondary text-decoration-none fw-medium"
-            >
-              Entrar
-            </Link>
+            {/* A sessao define os ultimos itens da navbar.
+                Logado: "Minha conta" + botao "Sair".
+                Deslogado: "Entrar". */}
+            {estaLogado() ? (
+              <>
+                <Link
+                  to="/minha-conta"
+                  className="text-secondary text-decoration-none fw-medium"
+                >
+                  Minha conta
+                </Link>
+                <button
+                  type="button"
+                  className="btn btn-link text-secondary text-decoration-none fw-medium p-0"
+                  onClick={() => {
+                    limparSessao();
+                    // Recarrega na home para refletir o estado deslogado.
+                    window.location.href = "/";
+                  }}
+                >
+                  Sair
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="text-secondary text-decoration-none fw-medium"
+              >
+                Entrar
+              </Link>
+            )}
           </nav>
 
           <form

@@ -17,6 +17,7 @@ const Anunciar = () => {
   const [carregando, setCarregando] = useState(false);
   const [publicado, setPublicado] = useState(false);
   const [erro, setErro] = useState("");
+  const [fotoPreview, setFotoPreview] = useState(null);
 
   // Anunciar exige login: a rota POST /api/itens agora pede token JWT.
   // Sem sessao, manda o usuario para a tela de login.
@@ -35,6 +36,13 @@ const Anunciar = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Trava de sessao: sem login, nao publica - vai para a tela de login.
+    if (!estaLogado()) {
+      navigate("/login");
+      return;
+    }
+
     setTentouEnviar(true);
     setPublicado(false);
     setErro("");
@@ -71,6 +79,7 @@ const Anunciar = () => {
       setDescricao("");
       setPreco("");
       setLocal("");
+      setFotoPreview(null);
       setTentouEnviar(false);
     } catch (err) {
       const msg = err.message || "Nao foi possivel publicar o anuncio.";
@@ -270,10 +279,29 @@ const Anunciar = () => {
                   className="d-flex flex-column align-items-center justify-content-center text-muted bg-light rounded-0 p-4"
                   style={{ border: "1px dashed #cbd5e0", cursor: "pointer" }}
                 >
-                  <ImagePlus size={28} className="mb-2" />
-                  <span className="small">Clique para enviar uma imagem</span>
+                  {fotoPreview ? (
+                    <img
+                      src={fotoPreview}
+                      alt="Pre-visualizacao do item"
+                      style={{ maxHeight: "180px", maxWidth: "100%", objectFit: "contain" }}
+                    />
+                  ) : (
+                    <>
+                      <ImagePlus size={28} className="mb-2" />
+                      <span className="small">Clique para enviar uma imagem</span>
+                    </>
+                  )}
                 </label>
-                <input id="foto" type="file" accept="image/*" className="d-none" />
+                <input
+                  id="foto"
+                  type="file"
+                  accept="image/*"
+                  className="d-none"
+                  onChange={(e) => {
+                    const arquivo = e.target.files?.[0];
+                    if (arquivo) setFotoPreview(URL.createObjectURL(arquivo));
+                  }}
+                />
               </div>
 
               {/* Botao principal */}

@@ -1,24 +1,78 @@
-import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Send, ArrowLeft, MessageCircle } from "lucide-react";
-import { getItemById } from "../data/itens";
+import { api, estaLogado } from "../api/client";
 
 const Chat = () => {
   const { id } = useParams();
-  const item = getItemById(id);
+  const navigate = useNavigate();
 
-  // Mensagens iniciais mock (algumas do locador, alguma do usuario).
-  const [mensagens, setMensagens] = useState([
-    { de: "locador", texto: "Ola! Vi que voce tem interesse neste item. Posso ajudar?" },
-    { de: "voce", texto: "Oi! O item esta disponivel para o proximo fim de semana?" },
-    { de: "locador", texto: "Esta sim! E so agendar a retirada no locker pelo app." },
-  ]);
+  const [item, setItem] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [naoEncontrado, setNaoEncontrado] = useState(false);
+
+  // Mensagens vindas do backend: { id, de, texto, criado_em }
+  // onde de e 'usuario' (usuario logado) ou 'locador'.
+  const [mensagens, setMensagens] = useState([]);
 
   const [texto, setTexto] = useState("");
 
-  // Item inexistente (id invalido na URL).
-  if (!item) {
+  // Exige login: sem sessao, vai para /login.
+  useEffect(() => {
+    if (!estaLogado()) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // Busca item e mensagens na montagem (e quando o id muda).
+  useEffect(() => {
+    if (!estaLogado()) return;
+
+    let ativo = true;
+
+    async function carregar() {
+      setCarregando(true);
+      setNaoEncontrado(false);
+      try {
+        // Item: usado para o nome do dono/locador e o nome do item.
+        const itemDados = await api(`/itens/${id}`);
+        if (!ativo) return;
+        setItem(itemDados);
+
+        // Historico de mensagens do chat deste item.
+        const msgs = await api(`/chat/${id}`, { auth: true });
+        if (!ativo) return;
+        setMensagens(Array.isArray(msgs) ? msgs : []);
+      } catch (err) {
+        if (!ativo) return;
+        setNaoEncontrado(true);
+      } finally {
+        if (ativo) setCarregando(false);
+      }
+    }
+
+    carregar();
+
+    return () => {
+      ativo = false;
+    };
+  }, [id]);
+
+  // Estado de carregamento simples.
+  if (carregando) {
+    return (
+      <div
+        className="min-vh-100 d-flex flex-column align-items-center justify-content-center text-center px-3"
+        style={{ backgroundColor: "#f7fafc" }}
+      >
+        <p className="text-muted mb-0">Carregando conversa...</p>
+      </div>
+    );
+  }
+
+  // Item inexistente (id invalido) ou erro ao carregar.
+  if (naoEncontrado || !item) {
     return (
       <div
         className="min-vh-100 d-flex flex-column align-items-center justify-content-center text-center px-3"
@@ -36,22 +90,23 @@ const Chat = () => {
     );
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const valor = texto.trim();
     if (!valor) return;
 
-    // TODO: integrar com backend de mensagens real (ex.: POST /chats/:id/mensagens).
-    setMensagens((prev) => [...prev, { de: "voce", texto: valor }]);
-    setTexto("");
-
-    // Resposta automatica mock do locador para simular a conversa.
-    setTimeout(() => {
-      setMensagens((prev) => [
-        ...prev,
-        { de: "locador", texto: "Recebi sua mensagem! Ja te respondo com os detalhes." },
-      ]);
-    }, 800);
+    try {
+      // POST retorna um array com 2 mensagens: a do usuario e a resposta do locador.
+      const novas = await api(`/chat/${id}`, {
+        method: "POST",
+        body: { texto: valor },
+        auth: true,
+      });
+      setMensagens((prev) => [...prev, ...(Array.isArray(novas) ? novas : [])]);
+      setTexto("");
+    } catch (err) {
+      // Falha no envio: mantem o texto digitado para nova tentativa.
+    }
   };
 
   return (
@@ -90,15 +145,16 @@ const Chat = () => {
           className="bg-white border shadow-sm rounded-0 p-3 d-flex flex-column gap-3 overflow-auto"
           style={{ height: "60vh" }}
         >
-          {mensagens.map((msg, index) => {
-            const ehVoce = msg.de === "voce";
+          {mensagens.map((msg) => {
+            // Backend usa 'usuario' (usuario logado) e 'locador'.
+            const ehUsuario = msg.de === "usuario";
             return (
               <div
-                key={index}
-                className={`d-flex ${ehVoce ? "justify-content-end" : "justify-content-start"}`}
+                key={msg.id}
+                className={`d-flex ${ehUsuario ? "justify-content-end" : "justify-content-start"}`}
               >
                 <div
-                  className={`px-3 py-2 rounded ${ehVoce ? "bg-aqua text-white" : "bg-aqua-light text-dark"}`}
+                  className={`px-3 py-2 rounded ${ehUsuario ? "bg-aqua text-white" : "bg-aqua-light text-dark"}`}
                   style={{ maxWidth: "75%" }}
                 >
                   {msg.texto}

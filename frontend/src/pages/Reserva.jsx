@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -10,12 +10,16 @@ import {
   CheckCircle,
   MapPin,
 } from "lucide-react";
-import { getItemById } from "../data/itens";
+import { api, estaLogado } from "../api/client";
 
 const Reserva = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const item = getItemById(id);
+
+  // Item carregado da API real.
+  const [item, setItem] = useState(null);
+  const [carregandoItem, setCarregandoItem] = useState(true);
+  const [naoEncontrado, setNaoEncontrado] = useState(false);
 
   // Estado do checkout.
   const [startDate, setStartDate] = useState("");
@@ -28,6 +32,29 @@ const Reserva = () => {
   const [tentouEnviar, setTentouEnviar] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
+  const [erroReserva, setErroReserva] = useState("");
+  // Chave real do locker retornada pelo backend.
+  const [chaveLocker, setChaveLocker] = useState("");
+
+  // Exige login: sem token, redireciona para /login.
+  useEffect(() => {
+    if (!estaLogado()) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // Busca o item por id na API.
+  useEffect(() => {
+    setCarregandoItem(true);
+    setNaoEncontrado(false);
+    api(`/itens/${id}`)
+      .then(setItem)
+      .catch(() => setNaoEncontrado(true))
+      .finally(() => setCarregandoItem(false));
+  }, [id]);
+
+  // Preco vem como string da API; converte para numero nos calculos.
+  const precoNumero = item ? Number(item.preco) : 0;
 
   // Calculo simples de dias para demonstracao na interface (igual DetalhesAgendamento).
   const calculateTotal = () => {
@@ -36,7 +63,7 @@ const Reserva = () => {
     const end = new Date(endDate);
     const diffTime = Math.abs(end - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    return diffDays > 0 ? diffDays * item.preco : 0;
+    return diffDays > 0 ? diffDays * precoNumero : 0;
   };
 
   // Validacao so aparece depois do primeiro clique em "Confirmar reserva".
@@ -44,26 +71,57 @@ const Reserva = () => {
   const devolucaoInvalida = tentouEnviar && endDate === "";
   const pagamentoInvalido = tentouEnviar && pagamento === "";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTentouEnviar(true);
+    setErroReserva("");
 
     // Nao confirma sem datas e metodo de pagamento.
     if (startDate === "" || endDate === "" || pagamento === "") {
       return;
     }
 
-    // Simulacao de chamada a API (substituir pela reserva real depois).
+    // Cria a reserva real no backend (exige Bearer token).
     setCarregando(true);
-    setTimeout(() => {
-      setCarregando(false);
+    try {
+      const resp = await api("/reservas", {
+        method: "POST",
+        body: {
+          itemId: item.id,
+          retirada: startDate,
+          devolucao: endDate,
+          pagamento,
+        },
+        auth: true,
+      });
+      setChaveLocker(resp.chave_locker);
       setConfirmado(true);
-      // TODO: criar a reserva no backend, cobrar o pagamento e gerar a chave real do locker.
-    }, 1200);
+    } catch (err) {
+      // 401 (sessao expirada / sem token) leva de volta ao login.
+      if (err.message && err.message.includes("401")) {
+        navigate("/login");
+        return;
+      }
+      setErroReserva(err.message || "Nao foi possivel concluir a reserva.");
+    } finally {
+      setCarregando(false);
+    }
   };
 
+  // Enquanto busca o item na API.
+  if (carregandoItem) {
+    return (
+      <div
+        className="min-vh-100 d-flex flex-column align-items-center justify-content-center text-center px-3"
+        style={{ backgroundColor: "#f7fafc" }}
+      >
+        <p className="text-muted mb-0">Carregando...</p>
+      </div>
+    );
+  }
+
   // Item inexistente (id invalido na URL).
-  if (!item) {
+  if (naoEncontrado || !item) {
     return (
       <div
         className="min-vh-100 d-flex flex-column align-items-center justify-content-center text-center px-3"
@@ -80,9 +138,6 @@ const Reserva = () => {
       </div>
     );
   }
-
-  // Chave digital do locker gerada de forma mock.
-  const chaveLocker = `Locker #${item.locker} — codigo ${item.id}4827`;
 
   return (
     <div className="min-vh-100 font-sans text-dark" style={{ backgroundColor: "#f7fafc" }}>
@@ -356,7 +411,7 @@ const Reserva = () => {
                 <div className="card border-0 shadow-sm rounded-0 bg-white p-4">
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                      <span className="fs-3 fw-bold text-aqua">R$ {item.preco}</span>
+                      <span className="fs-3 fw-bold text-aqua">R$ {precoNumero}</span>
                       <span className="text-muted small"> / dia</span>
                     </div>
                     <span className="small text-secondary d-flex align-items-center gap-1">
@@ -370,7 +425,7 @@ const Reserva = () => {
                     <div className="bg-light p-3 mb-4 rounded-0 small">
                       <div className="d-flex justify-content-between mb-2">
                         <span>
-                          R$ {item.preco} x {calculateTotal() / item.preco} dias
+                          R$ {precoNumero} x {calculateTotal() / precoNumero} dias
                         </span>
                         <span>R$ {calculateTotal()}</span>
                       </div>
@@ -388,6 +443,12 @@ const Reserva = () => {
                     <p className="text-muted small mb-4">
                       Escolha as datas de retirada e devolucao para ver o total.
                     </p>
+                  )}
+
+                  {erroReserva && (
+                    <div className="alert alert-danger rounded-0 small py-2" role="alert">
+                      {erroReserva}
+                    </div>
                   )}
 
                   <button

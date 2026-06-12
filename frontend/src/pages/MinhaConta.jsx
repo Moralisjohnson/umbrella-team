@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   User,
@@ -7,40 +7,71 @@ import {
   Tag,
   Calendar,
   Mail,
-  Phone,
   Edit,
   PauseCircle,
 } from "lucide-react";
-import { ITENS } from "../data/itens";
+import { api, estaLogado } from "../api/client";
 
 const MinhaConta = () => {
+  const navigate = useNavigate();
   const [abaAtiva, setAbaAtiva] = useState("alugueis");
 
-  // Perfil mock (ate haver autenticacao real).
-  // TODO: substituir por dados do usuario logado vindos do backend.
-  const usuario = {
-    nome: "Guilherme A.",
-    email: "guilherme.a@email.com",
-    telefone: "(41) 99999-0000",
-  };
+  // Dados reais vindos do backend.
+  const [perfil, setPerfil] = useState(null);
+  const [alugueis, setAlugueis] = useState([]);
+  const [anuncios, setAnuncios] = useState([]);
+  const [carregando, setCarregando] = useState(true);
 
-  // Alugueis mock montados a partir de itens reais.
-  const meusAlugueis = ITENS.slice(0, 3).map((item, index) => ({
-    item,
-    status: index === 2 ? "Concluido" : "Em andamento",
-    inicio: "10/06/2026",
-    fim: "15/06/2026",
-    valor: item.preco * 5,
-  }));
+  useEffect(() => {
+    // Exige login: sem token, vai para /login.
+    if (!estaLogado()) {
+      navigate("/login");
+      return;
+    }
 
-  // Anuncios mock: itens que o usuario estaria anunciando.
-  const meusAnuncios = ITENS.slice(3, 5);
+    let ativo = true;
+
+    async function carregar() {
+      try {
+        const [perfilResp, alugueisResp, anunciosResp] = await Promise.all([
+          api("/conta/perfil", { auth: true }),
+          api("/conta/alugueis", { auth: true }),
+          api("/conta/anuncios", { auth: true }),
+        ]);
+
+        if (!ativo) return;
+
+        setPerfil(perfilResp);
+        setAlugueis(Array.isArray(alugueisResp) ? alugueisResp : []);
+        setAnuncios(Array.isArray(anunciosResp) ? anunciosResp : []);
+      } catch (erro) {
+        if (!ativo) return;
+        // Sessao invalida/expirada -> volta para o login.
+        if (String(erro.message).includes("401")) {
+          navigate("/login");
+          return;
+        }
+      } finally {
+        if (ativo) setCarregando(false);
+      }
+    }
+
+    carregar();
+
+    return () => {
+      ativo = false;
+    };
+  }, [navigate]);
 
   const abas = [
     { id: "alugueis", label: "Meus alugueis", icone: Calendar },
     { id: "anuncios", label: "Meus anuncios", icone: Tag },
     { id: "perfil", label: "Perfil", icone: User },
   ];
+
+  // Nome/email exibidos no cabecalho e no perfil.
+  const nome = perfil?.nome || "";
+  const email = perfil?.email || "";
 
   return (
     <div
@@ -108,8 +139,8 @@ const MinhaConta = () => {
             <User size={36} />
           </div>
           <div>
-            <h1 className="h4 fw-bold text-dark mb-1">{usuario.nome}</h1>
-            <p className="text-muted mb-0 small">{usuario.email}</p>
+            <h1 className="h4 fw-bold text-dark mb-1">{nome}</h1>
+            <p className="text-muted mb-0 small">{email}</p>
           </div>
         </section>
 
@@ -140,42 +171,50 @@ const MinhaConta = () => {
         {abaAtiva === "alugueis" && (
           <section>
             <h2 className="h5 text-aqua fw-bold mb-3">Meus alugueis</h2>
-            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-              {meusAlugueis.map(({ item, status, inicio, fim, valor }) => (
-                <div key={item.id} className="col">
-                  <div className="card h-100 border-0 shadow-sm rounded-0">
-                    <div className="card-body d-flex flex-column">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h3 className="h6 fw-bold text-dark mb-0">
-                          {item.nome}
-                        </h3>
-                        <span
-                          className={`badge rounded-0 ms-2 ${
-                            status === "Concluido"
-                              ? "bg-secondary"
-                              : "bg-aqua"
-                          }`}
-                        >
-                          {status}
-                        </span>
+            {!carregando && alugueis.length === 0 ? (
+              <p className="text-muted">Voce ainda nao tem alugueis.</p>
+            ) : (
+              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {alugueis.map((aluguel, index) => (
+                  <div key={aluguel.id ?? index} className="col">
+                    <div className="card h-100 border-0 shadow-sm rounded-0">
+                      <div className="card-body d-flex flex-column">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <h3 className="h6 fw-bold text-dark mb-0">
+                            {aluguel.item_nome}
+                          </h3>
+                          <span
+                            className={`badge rounded-0 ms-2 ${
+                              aluguel.status === "Concluido"
+                                ? "bg-secondary"
+                                : "bg-aqua"
+                            }`}
+                          >
+                            {aluguel.status}
+                          </span>
+                        </div>
+                        {aluguel.item_local && (
+                          <p className="small text-muted mb-2">
+                            {aluguel.item_local}
+                          </p>
+                        )}
+                        <div className="text-aqua fw-bold fs-5 mb-2">
+                          R$ {aluguel.total}
+                        </div>
+                        {aluguel.chave_locker && (
+                          <p className="small text-muted mb-0">
+                            Chave do locker:{" "}
+                            <span className="fw-semibold text-dark">
+                              {aluguel.chave_locker}
+                            </span>
+                          </p>
+                        )}
                       </div>
-                      <p className="small text-muted mb-2 d-flex align-items-center gap-1">
-                        <Calendar size={14} /> {inicio} ate {fim}
-                      </p>
-                      <div className="text-aqua fw-bold fs-5 mb-3">
-                        R$ {valor}
-                      </div>
-                      <Link
-                        to={`/detalhes/${item.id}`}
-                        className="btn btn-outline-aqua btn-sm rounded-0 mt-auto fw-semibold"
-                      >
-                        Ver detalhes
-                      </Link>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
 
@@ -183,8 +222,11 @@ const MinhaConta = () => {
         {abaAtiva === "anuncios" && (
           <section>
             <h2 className="h5 text-aqua fw-bold mb-3">Meus anuncios</h2>
+            {!carregando && anuncios.length === 0 ? (
+              <p className="text-muted">Voce ainda nao tem anuncios.</p>
+            ) : (
             <div className="row row-cols-1 row-cols-md-2 g-4">
-              {meusAnuncios.map((item) => (
+              {anuncios.map((item) => (
                 <div key={item.id} className="col">
                   <div className="card h-100 border-0 shadow-sm rounded-0">
                     <div className="card-body">
@@ -223,6 +265,7 @@ const MinhaConta = () => {
                 </div>
               ))}
             </div>
+            )}
           </section>
         )}
 
@@ -236,23 +279,14 @@ const MinhaConta = () => {
                   <User size={18} className="text-aqua-light" />
                   <div>
                     <div className="small text-muted">Nome</div>
-                    <div className="fw-semibold text-dark">{usuario.nome}</div>
-                  </div>
-                </div>
-                <div className="mb-3 d-flex align-items-center gap-2">
-                  <Mail size={18} className="text-aqua-light" />
-                  <div>
-                    <div className="small text-muted">E-mail</div>
-                    <div className="fw-semibold text-dark">{usuario.email}</div>
+                    <div className="fw-semibold text-dark">{nome}</div>
                   </div>
                 </div>
                 <div className="mb-4 d-flex align-items-center gap-2">
-                  <Phone size={18} className="text-aqua-light" />
+                  <Mail size={18} className="text-aqua-light" />
                   <div>
-                    <div className="small text-muted">Telefone</div>
-                    <div className="fw-semibold text-dark">
-                      {usuario.telefone}
-                    </div>
+                    <div className="small text-muted">E-mail</div>
+                    <div className="fw-semibold text-dark">{email}</div>
                   </div>
                 </div>
                 <button

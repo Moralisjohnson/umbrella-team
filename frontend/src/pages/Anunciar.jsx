@@ -69,6 +69,7 @@ const Anunciar = () => {
           descricao,
           preco: Number(preco),
           local,
+          imagem: fotoPreview,
         },
         auth: true,
       });
@@ -299,7 +300,11 @@ const Anunciar = () => {
                   className="d-none"
                   onChange={(e) => {
                     const arquivo = e.target.files?.[0];
-                    if (arquivo) setFotoPreview(URL.createObjectURL(arquivo));
+                    if (!arquivo) return;
+                    // Le a imagem como data URL (base64) para pre-visualizar e enviar.
+                    const reader = new FileReader();
+                    reader.onload = () => setFotoPreview(reader.result);
+                    reader.readAsDataURL(arquivo);
                   }}
                 />
               </div>

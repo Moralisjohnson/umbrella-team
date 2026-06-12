@@ -64,3 +64,6 @@ CREATE INDEX IF NOT EXISTS idx_mensagens_item_usuario ON mensagens (item_id, usu
 -- Migracao: liga itens ao usuario que os criou (dono real).
 -- Definida no fim do arquivo porque a tabela usuarios precisa ja existir para a FK.
 ALTER TABLE itens ADD COLUMN IF NOT EXISTS usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL;
+
+-- Imagem do item (base64 / data URL).
+ALTER TABLE itens ADD COLUMN IF NOT EXISTS imagem TEXT;

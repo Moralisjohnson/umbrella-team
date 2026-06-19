@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { api } from "../api/client";
 import Avaliacoes from "../components/Avaliacoes";
+import CalendarioReserva from "../components/CalendarioReserva";
 
 const ItemDetailsApp = () => {
   const { id } = useParams();
@@ -266,34 +267,18 @@ const ItemDetailsApp = () => {
                 </span>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label small fw-bold text-secondary">RETIRADA AGENDADA</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white rounded-0 text-muted">
-                    <Calendar size={16} />
-                  </span>
-                  <input
-                    type="datetime-local"
-                    className="form-control rounded-0 shadow-none"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
-                </div>
-              </div>
-
               <div className="mb-4">
-                <label className="form-label small fw-bold text-secondary">DEVOLUCAO AGENDADA</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white rounded-0 text-muted">
-                    <Calendar size={16} />
-                  </span>
-                  <input
-                    type="datetime-local"
-                    className="form-control rounded-0 shadow-none"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
-                </div>
+                <label className="form-label small fw-bold text-secondary d-flex align-items-center gap-2">
+                  <Calendar size={14} /> PERIODO DO ALUGUEL
+                </label>
+                <CalendarioReserva
+                  retirada={startDate}
+                  devolucao={endDate}
+                  onChange={({ retirada, devolucao }) => {
+                    setStartDate(retirada);
+                    setEndDate(devolucao);
+                  }}
+                />
               </div>
 
               {calculateTotal() > 0 && (

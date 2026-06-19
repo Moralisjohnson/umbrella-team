@@ -11,6 +11,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { api, estaLogado } from "../api/client";
+import CalendarioReserva from "../components/CalendarioReserva";
 
 const Reserva = () => {
   const { id } = useParams();
@@ -244,65 +245,21 @@ const Reserva = () => {
                     <Calendar size={18} /> Periodo do aluguel
                   </h2>
 
-                  <div className="mb-3">
-                    <label
-                      htmlFor="retirada"
-                      className="form-label small fw-bold text-secondary"
-                    >
-                      RETIRADA AGENDADA
-                    </label>
-                    <div className="input-group">
-                      <span className="input-group-text bg-white rounded-0 text-muted">
-                        <Calendar size={16} />
-                      </span>
-                      <input
-                        id="retirada"
-                        type="datetime-local"
-                        className={`form-control rounded-0 shadow-none ${
-                          retiradaInvalida ? "is-invalid" : ""
-                        }`}
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        aria-invalid={retiradaInvalida}
-                        aria-describedby={retiradaInvalida ? "retirada-erro" : undefined}
-                      />
-                    </div>
-                    {retiradaInvalida && (
-                      <div className="text-danger small mt-1" id="retirada-erro">
-                        Informe a data de retirada.
-                      </div>
-                    )}
-                  </div>
+                  <CalendarioReserva
+                    retirada={startDate}
+                    devolucao={endDate}
+                    invalido={retiradaInvalida || devolucaoInvalida}
+                    onChange={({ retirada, devolucao }) => {
+                      setStartDate(retirada);
+                      setEndDate(devolucao);
+                    }}
+                  />
 
-                  <div className="mb-0">
-                    <label
-                      htmlFor="devolucao"
-                      className="form-label small fw-bold text-secondary"
-                    >
-                      DEVOLUCAO AGENDADA
-                    </label>
-                    <div className="input-group">
-                      <span className="input-group-text bg-white rounded-0 text-muted">
-                        <Calendar size={16} />
-                      </span>
-                      <input
-                        id="devolucao"
-                        type="datetime-local"
-                        className={`form-control rounded-0 shadow-none ${
-                          devolucaoInvalida ? "is-invalid" : ""
-                        }`}
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        aria-invalid={devolucaoInvalida}
-                        aria-describedby={devolucaoInvalida ? "devolucao-erro" : undefined}
-                      />
+                  {(retiradaInvalida || devolucaoInvalida) && (
+                    <div className="text-danger small mt-2">
+                      Selecione a data de retirada e de devolucao.
                     </div>
-                    {devolucaoInvalida && (
-                      <div className="text-danger small mt-1" id="devolucao-erro">
-                        Informe a data de devolucao.
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
 
                 <div className="card border-0 shadow-sm rounded-0 bg-white p-4">

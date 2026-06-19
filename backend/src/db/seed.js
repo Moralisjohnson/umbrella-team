@@ -23,8 +23,8 @@ async function seed() {
 
   for (const item of itens) {
     const { rows } = await pool.query(
-      `INSERT INTO itens (nome, categoria, preco, nota, avaliacoes, dono, local, endereco, locker, descricao)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO itens (nome, categoria, preco, nota, avaliacoes, dono, local, endereco, locker, descricao, imagem)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING id`,
       [
         item.nome,
@@ -37,6 +37,7 @@ async function seed() {
         item.endereco,
         item.locker,
         item.descricao,
+        item.imagem || null,
       ]
     );
     const itemId = rows[0].id;
